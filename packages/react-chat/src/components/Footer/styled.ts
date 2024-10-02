@@ -22,20 +22,10 @@ export const Container = styled(tag('footer'), {
     width: '100%',
   },
 
-  // Adds spacing between the MainMenuButton and other elements
-  '& > *:not(:last-child)': {
-    marginRight: '10px', // Adjust this value as needed for desired spacing
-  },
-
   variants: {
     withShadow: {
       true: {
         boxShadow: '0 12px 48px $shadow16',
-      },
-    },
-    withWatermark: {
-      true: {
-        paddingBottom: '0',
       },
     },
   },
@@ -46,7 +36,7 @@ export const Watermark = styled(tag('aside', 'watermark'), {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  padding: '10px 0 $3 0',
+  padding: '4px 0', // Adjust padding as needed
   typo: { size: 12, height: '17px' },
   color: '$darkGrey',
 
@@ -67,4 +57,12 @@ export const MainMenuButtonWrapper = styled('div', {
   alignItems: 'center',
   justifyContent: 'center',
   marginRight: '10px', // Adjust this value if needed to properly align with ChatInput
+  flexShrink: 0, // Prevent shrinking of the button
+});
+
+// Wrapper for ChatInput and Watermark to align vertically
+export const InputWrapper = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1, // Allows the entire wrapper to take up remaining space
 });

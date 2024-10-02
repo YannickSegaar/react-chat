@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Button from '@/components/Button';
 import ChatInput from '@/components/ChatInput';
 import MainMenuButton from '@/components/MainMenuButton'; // Import the MainMenuButton
-import { Container, Watermark, MainMenuButtonWrapper } from './styled';
+import { Container, Watermark, MainMenuButtonWrapper, InputWrapper } from './styled';
 
 export interface FooterProps {
   withWatermark: boolean;
@@ -49,34 +49,35 @@ const Footer: React.FC<FooterProps> = ({
   };
 
   return (
-    <Container withShadow={!!hasEnded} withWatermark={withWatermark}>
+    <Container withShadow={!!hasEnded}>
       {hasEnded ? (
         <Button onClick={onStart}>Start New Chat</Button>
       ) : (
         <>
-          {/* Wrap MainMenuButton in the styled wrapper */}
           <MainMenuButtonWrapper>
             <MainMenuButton onActionSelect={handleMenuActionSelect} />
           </MainMenuButtonWrapper>
-          <ChatInput
-            value={message}
-            placeholder="Message…"
-            autoFocus
-            onValueChange={setMessage}
-            onSend={handleSend}
-            disableSend={disableSend}
-            audioInterface={audioInterface}
-            speechRecognition={speechRecognition}
-          />
+          <InputWrapper>
+            <ChatInput
+              value={message}
+              placeholder="Message…"
+              autoFocus
+              onValueChange={setMessage}
+              onSend={handleSend}
+              disableSend={disableSend}
+              audioInterface={audioInterface}
+              speechRecognition={speechRecognition}
+            />
+            {withWatermark && (
+              <Watermark>
+                Assistant ⚡️ by
+                <a target="_blank" href="https://www.romaix.ai/" rel="noreferrer">
+                  RomAIx
+                </a>
+              </Watermark>
+            )}
+          </InputWrapper>
         </>
-      )}
-      {withWatermark && (
-        <Watermark>
-          Assistant ⚡️ by
-          <a target="_blank" href="https://voiceflow.com" rel="noreferrer">
-            Voiceflow
-          </a>
-        </Watermark>
       )}
     </Container>
   );
