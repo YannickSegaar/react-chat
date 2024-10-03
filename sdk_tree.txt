@@ -1,0 +1,189 @@
+/Users/yannickromainsegaar/react-chat/packages/sdk-runtime
+├── CHANGELOG.md
+├── build
+│   ├── cjs
+│   │   ├── main.d.ts
+│   │   ├── main.d.ts.map
+│   │   ├── main.js
+│   │   ├── package.json
+│   │   ├── runtime
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.d.ts.map
+│   │   │   ├── index.js
+│   │   │   ├── runtime.interface.d.ts
+│   │   │   ├── runtime.interface.d.ts.map
+│   │   │   ├── runtime.interface.js
+│   │   │   ├── runtime.service.auth.d.ts
+│   │   │   ├── runtime.service.auth.d.ts.map
+│   │   │   ├── runtime.service.auth.js
+│   │   │   ├── runtime.service.d.ts
+│   │   │   ├── runtime.service.d.ts.map
+│   │   │   ├── runtime.service.js
+│   │   │   ├── runtime.service.prototype.d.ts
+│   │   │   ├── runtime.service.prototype.d.ts.map
+│   │   │   ├── runtime.service.prototype.js
+│   │   │   ├── runtime.service.public.d.ts
+│   │   │   ├── runtime.service.public.d.ts.map
+│   │   │   └── runtime.service.public.js
+│   │   ├── sdk
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.d.ts.map
+│   │   │   ├── index.js
+│   │   │   ├── sdk.interface.d.ts
+│   │   │   ├── sdk.interface.d.ts.map
+│   │   │   ├── sdk.interface.js
+│   │   │   ├── sdk.service.d.ts
+│   │   │   ├── sdk.service.d.ts.map
+│   │   │   └── sdk.service.js
+│   │   └── trace
+│   │       ├── components
+│   │       │   ├── card.component.d.ts
+│   │       │   ├── card.component.d.ts.map
+│   │       │   ├── card.component.js
+│   │       │   ├── cardV2.component.d.ts
+│   │       │   ├── cardV2.component.d.ts.map
+│   │       │   ├── cardV2.component.js
+│   │       │   ├── choice.component.d.ts
+│   │       │   ├── choice.component.d.ts.map
+│   │       │   ├── choice.component.js
+│   │       │   ├── end.component.d.ts
+│   │       │   ├── end.component.d.ts.map
+│   │       │   ├── end.component.js
+│   │       │   ├── index.d.ts
+│   │       │   ├── index.d.ts.map
+│   │       │   ├── index.js
+│   │       │   ├── speak.component.d.ts
+│   │       │   ├── speak.component.d.ts.map
+│   │       │   ├── speak.component.js
+│   │       │   ├── stream.component.d.ts
+│   │       │   ├── stream.component.d.ts.map
+│   │       │   ├── stream.component.js
+│   │       │   ├── text.component.d.ts
+│   │       │   ├── text.component.d.ts.map
+│   │       │   ├── text.component.js
+│   │       │   ├── visual.component.d.ts
+│   │       │   ├── visual.component.d.ts.map
+│   │       │   └── visual.component.js
+│   │       ├── index.d.ts
+│   │       ├── index.d.ts.map
+│   │       ├── index.js
+│   │       ├── trace.component.d.ts
+│   │       ├── trace.component.d.ts.map
+│   │       ├── trace.component.js
+│   │       ├── trace.interface.d.ts
+│   │       ├── trace.interface.d.ts.map
+│   │       ├── trace.interface.js
+│   │       ├── trace.service.d.ts
+│   │       ├── trace.service.d.ts.map
+│   │       └── trace.service.js
+│   └── esm
+│       ├── main.d.ts
+│       ├── main.d.ts.map
+│       ├── main.js
+│       ├── package.json
+│       ├── runtime
+│       │   ├── index.d.ts
+│       │   ├── index.d.ts.map
+│       │   ├── index.js
+│       │   ├── runtime.interface.d.ts
+│       │   ├── runtime.interface.d.ts.map
+│       │   ├── runtime.interface.js
+│       │   ├── runtime.service.auth.d.ts
+│       │   ├── runtime.service.auth.d.ts.map
+│       │   ├── runtime.service.auth.js
+│       │   ├── runtime.service.d.ts
+│       │   ├── runtime.service.d.ts.map
+│       │   ├── runtime.service.js
+│       │   ├── runtime.service.prototype.d.ts
+│       │   ├── runtime.service.prototype.d.ts.map
+│       │   ├── runtime.service.prototype.js
+│       │   ├── runtime.service.public.d.ts
+│       │   ├── runtime.service.public.d.ts.map
+│       │   └── runtime.service.public.js
+│       ├── sdk
+│       │   ├── index.d.ts
+│       │   ├── index.d.ts.map
+│       │   ├── index.js
+│       │   ├── sdk.interface.d.ts
+│       │   ├── sdk.interface.d.ts.map
+│       │   ├── sdk.interface.js
+│       │   ├── sdk.service.d.ts
+│       │   ├── sdk.service.d.ts.map
+│       │   └── sdk.service.js
+│       └── trace
+│           ├── components
+│           │   ├── card.component.d.ts
+│           │   ├── card.component.d.ts.map
+│           │   ├── card.component.js
+│           │   ├── cardV2.component.d.ts
+│           │   ├── cardV2.component.d.ts.map
+│           │   ├── cardV2.component.js
+│           │   ├── choice.component.d.ts
+│           │   ├── choice.component.d.ts.map
+│           │   ├── choice.component.js
+│           │   ├── end.component.d.ts
+│           │   ├── end.component.d.ts.map
+│           │   ├── end.component.js
+│           │   ├── index.d.ts
+│           │   ├── index.d.ts.map
+│           │   ├── index.js
+│           │   ├── speak.component.d.ts
+│           │   ├── speak.component.d.ts.map
+│           │   ├── speak.component.js
+│           │   ├── stream.component.d.ts
+│           │   ├── stream.component.d.ts.map
+│           │   ├── stream.component.js
+│           │   ├── text.component.d.ts
+│           │   ├── text.component.d.ts.map
+│           │   ├── text.component.js
+│           │   ├── visual.component.d.ts
+│           │   ├── visual.component.d.ts.map
+│           │   └── visual.component.js
+│           ├── index.d.ts
+│           ├── index.d.ts.map
+│           ├── index.js
+│           ├── trace.component.d.ts
+│           ├── trace.component.d.ts.map
+│           ├── trace.component.js
+│           ├── trace.interface.d.ts
+│           ├── trace.interface.d.ts.map
+│           ├── trace.interface.js
+│           ├── trace.service.d.ts
+│           ├── trace.service.d.ts.map
+│           └── trace.service.js
+├── package.json
+├── sonar-project.properties
+├── src
+│   ├── main.ts
+│   ├── runtime
+│   │   ├── index.ts
+│   │   ├── runtime.interface.ts
+│   │   ├── runtime.service.auth.ts
+│   │   ├── runtime.service.prototype.ts
+│   │   ├── runtime.service.public.ts
+│   │   └── runtime.service.ts
+│   ├── sdk
+│   │   ├── index.ts
+│   │   ├── sdk.interface.ts
+│   │   └── sdk.service.ts
+│   └── trace
+│       ├── components
+│       │   ├── card.component.ts
+│       │   ├── cardV2.component.ts
+│       │   ├── choice.component.ts
+│       │   ├── end.component.ts
+│       │   ├── index.ts
+│       │   ├── speak.component.ts
+│       │   ├── stream.component.ts
+│       │   ├── text.component.ts
+│       │   └── visual.component.ts
+│       ├── index.ts
+│       ├── trace.component.ts
+│       ├── trace.interface.ts
+│       └── trace.service.ts
+├── tsconfig.build.cjs.json
+├── tsconfig.build.esm.json
+├── tsconfig.build.json
+└── tsconfig.json
+
+17 directories, 170 files

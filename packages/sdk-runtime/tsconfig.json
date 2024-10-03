@@ -6,7 +6,7 @@
     "isolatedModules": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": [],
+    "types": ["node"],
     "paths": {
       "@/*": ["src/*"]
     }

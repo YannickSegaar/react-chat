@@ -12,6 +12,7 @@ export interface FooterProps {
   onStart?: (() => Promise<void>) | undefined;
   onSend?: ((message: string) => Promise<void>) | undefined;
   speechRecognition?: any;
+  userId: string; // Add userId here
 }
 
 const Footer: React.FC<FooterProps> = ({
@@ -22,6 +23,7 @@ const Footer: React.FC<FooterProps> = ({
   onSend,
   audioInterface,
   speechRecognition,
+  userId, // Add userId here
 }) => {
   const [message, setMessage] = useState('');
 
@@ -30,29 +32,6 @@ const Footer: React.FC<FooterProps> = ({
 
     setMessage('');
     await onSend?.(message);
-  };
-
-  const handleMenuActionSelect = (action: string) => {
-    // Use unique identifiers for triggering the workflows
-    switch (action) {
-      case 'exploreTours':
-        triggerWorkflow('WORKFLOW_EXPLORE_TOURS');
-        break;
-      case 'viewBookings':
-        triggerWorkflow('WORKFLOW_VIEW_BOOKINGS');
-        break;
-      case 'contactSupport':
-        triggerWorkflow('WORKFLOW_CONTACT_SUPPORT');
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Function to trigger workflows in Voiceflow
-  const triggerWorkflow = (workflowId: string) => {
-    // Send a unique command that Voiceflow will interpret as a workflow trigger
-    onSend?.(`/workflow ${workflowId}`);
   };
 
   return (
@@ -74,7 +53,8 @@ const Footer: React.FC<FooterProps> = ({
       ) : (
         <>
           <InteractionWrapper>
-            <MainMenuButton onActionSelect={handleMenuActionSelect} />
+            {/* Pass userId to MainMenuButton */}
+            <MainMenuButton userId={userId} />
             <InputWrapper>
               <ChatInput
                 value={message}

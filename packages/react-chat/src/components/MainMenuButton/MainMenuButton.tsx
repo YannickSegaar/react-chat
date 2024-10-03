@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { MainMenuButtonContainer, DropUpMenu } from './styled';
 import Icon from '@/components/Icon';
-import ConfirmationDialog from '@/components/ConfirmationDialog'; // Import the ConfirmationDialog component
+import ConfirmationDialog from '@/components/ConfirmationDialog';
+import { triggerWorkflow } from '@/utils/triggerWorkflow'; // Import the new function
 
 interface MainMenuButtonProps {
-  onActionSelect: (action: string) => void;
+  userId: string; // This is necessary for identifying the user
 }
 
-const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
+const MainMenuButton: React.FC<MainMenuButtonProps> = ({ userId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -22,9 +23,35 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
     setIsDialogOpen(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedAction) {
-      onActionSelect(selectedAction);
+      // Convert the selected action to a workflow ID and call the triggerWorkflow function
+      let workflowId: string;
+      switch (selectedAction) {
+        case 'exploreTours':
+          workflowId = process.env.EXPLORE_TOURS_WORKFLOW_ID ?? ''; // Replace with your actual workflow ID
+          break;
+        case 'viewBookings':
+          workflowId = process.env.VIEW_BOOKINGS_WORKFLOW_ID ?? ''; // Replace with your actual workflow ID
+          break;
+        case 'contactSupport':
+          workflowId = process.env.CONTACT_SUPPORT_WORKFLOW_ID ?? ''; // Replace with your actual workflow ID
+          break;
+        default:
+          return;
+      }
+
+      if (!workflowId) {
+        console.error(`Workflow ID for ${selectedAction} is not defined.`);
+        return;
+      }
+
+      try {
+        await triggerWorkflow(workflowId, userId);
+        console.log(`Triggered workflow: ${workflowId}`);
+      } catch (error) {
+        console.error(`Error triggering workflow ${workflowId}`, error);
+      }
     }
     setIsDialogOpen(false);
   };
@@ -55,7 +82,7 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
           isOpen={isDialogOpen}
           onAccept={handleConfirm}
           onCancel={handleCancel}
-          message={`Do you want to explore ${selectedAction}?`}
+          message={`Do you want to proceed with ${selectedAction?.replace('WORKFLOW_', '').replace('_', ' ')}?`}
         />
       )}
     </>
