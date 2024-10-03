@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MainMenuButtonContainer, DropUpMenu } from './styled';
-import Icon from '@/components/Icon'; // Import the Icon component for styling consistency
+import Icon from '@/components/Icon';
+import ConfirmationDialog from '@/components/ConfirmationDialog'; // Import the ConfirmationDialog component
 
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
@@ -8,6 +9,8 @@ interface MainMenuButtonProps {
 
 const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const handleMenuToggle = () => {
     setIsOpen((prev) => !prev);
@@ -15,21 +18,47 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
 
   const handleActionClick = (action: string) => {
     setIsOpen(false);
-    onActionSelect(action);
+    setSelectedAction(action);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (selectedAction) {
+      onActionSelect(selectedAction);
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsDialogOpen(false);
+    setSelectedAction(null);
   };
 
   return (
-    <MainMenuButtonContainer>
-      {/* Replace the button wrapper with Icon itself */}
-      <Icon svg="plusCircle" onClick={handleMenuToggle} css={{ cursor: 'pointer', width: '24px', height: '24px' }} />
-      {isOpen && (
-        <DropUpMenu>
-          <button onClick={() => handleActionClick('exploreTours')}>Explore Tours</button>
-          <button onClick={() => handleActionClick('viewBookings')}>View Bookings</button>
-          <button onClick={() => handleActionClick('contactSupport')}>Contact Support</button>
-        </DropUpMenu>
+    <>
+      <MainMenuButtonContainer>
+        <Icon
+          svg="plusCircle"
+          onClick={handleMenuToggle}
+          css={{ cursor: 'pointer', width: '24px', height: '24px' }}
+        />
+        {isOpen && (
+          <DropUpMenu>
+            <button onClick={() => handleActionClick('exploreTours')}>Explore Tours</button>
+            <button onClick={() => handleActionClick('viewBookings')}>View Bookings</button>
+            <button onClick={() => handleActionClick('contactSupport')}>Contact Support</button>
+          </DropUpMenu>
+        )}
+      </MainMenuButtonContainer>
+      {isDialogOpen && (
+        <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onAccept={handleConfirm}
+          onCancel={handleCancel}
+          message={`Do you want to explore ${selectedAction}?`}
+        />
       )}
-    </MainMenuButtonContainer>
+    </>
   );
 };
 

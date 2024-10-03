@@ -1,0 +1,2378 @@
+
+# **GETTING STARTED WITH VOICEFLOW APIs:**
+
+## **Using the Dialog Manager API (DM API):**
+
+The most commonly used API with Voiceflow is the Dialog Manager API. It's what drives the conversations on the webchat widget and acts as the backbone of any conversion happening with a Voiceflow agent.
+
+You send a request to it with a user input, it runs your Voiceflow agent and returns the agent's responses, and your program then takes turns giving user input and getting Voiceflow output.
+
+You can read through it's full docs here if you're interested in learning more, after this guide.
+
+You'll also be using a user_id to identify which conversation is going on. There are more details in the DM API guide, but in short, a user_id uniquely identifies a user's conversation, and for multiple requests to go back and forth and be in the same thread, you've got to keep the same user_id. If, on the other hand, you want to have multiple users talking at the same time, they should have different (unique, and hard to guess) user_ids. For this project, we'll just use a user's name as the user_id.
+
+👉 Create a function called interact. It'll be used to communicate with Voiceflow.
+
+Python
+JavaScript
+
+const axios = require('axios');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    // Function implementation will go here
+};
+
+## **How to send requests to Voiceflow APIs:**
+
+More specifically, we'll be using the DM API's interact endpoint, that lets us send a request and receive a response from our Voiceflow agent. Requests being sent to the DM API consist of a user_id and a request payload.
+
+👉 Add a line to your interact function that sends a post request to the Voiceflow interact endpoint. We're just going to print the response from the API for now.
+
+Python
+JavaScript
+
+const axios = require('axios');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+        
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+    }
+};
+In this request, you'll notice how you include your API key as an Authorization header. This is used to identify which agent we are interacting with, and that you're authorized to. We're also including a versionID alias, that just tell us to use the version that we published above.
+
+As we discussed above, the user_id is a unique string, but the request payload is a bit more complicated.
+
+There are two important types of payloads you need to know about:
+
+The launch payload is used to start or reset the conversation. It's what's sent when you click Start New Chat on the web chat widget. In most projects, it's appropriate to automatically send this request when your app starts. Its payload is simply { 'type': 'launch' }.
+The text payload is used to send a text reply from the user. It's the most common way of getting input from a user. Text messages sent this way are also matched for intents if you have any set up, so it can be used to select from menus or trigger intent-specific workflows. Its payload looks like { 'type': 'text', 'payload': 'my text' }.
+There are a few more ways that a user can interact with the Voiceflow agent, like clicking a button, but these two are enough to get us started. You can find more documentation about the types of requests that you can send in the interact endpoint docs here.
+
+## **How to start a conversation:**
+
+👉 At the bottom of your file, add a variable called name that will take an input from the user to set the user_id. We'll also just add a single launch request to our interact function and see what it prints.
+
+Python
+JavaScript
+
+const axios = require('axios');
+const readline = require('readline');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+        
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+    }
+};
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('> What is your name?\n', (name) => {
+    interact(name, { type: 'launch' }).then(() => rl.close());
+});
+👉 Run your Pythons script with python3 VoiceflowAPIGuide.py and watch your console!
+
+
+python3 VoiceflowAPIGuide.py
+> What is your name?
+Testing-Alex
+[
+   {
+      "time":1721073897342,
+      "type":"text",
+      "payload":{
+         [...]
+         "message":"Hi there Python!",
+      }
+   },
+   {
+      "time":1721073897342,
+      "type":"text",
+      "payload":{
+        [...]
+         "message":"Echoing",
+      }
+   }
+]
+We see an array of JSON objects! Congratulations on doing your first interaction with a Voiceflow API! 🎉 🥳.
+
+## **How to parse the output traces:**
+
+Now, let's go into how to interpret this big array of JSON objects. Each of these objects is called a trace, which represent any output from Voiceflow. Their most important fields are the type which tells you how to interpret the second part, the payload that actually stores the content you need to use the output.
+
+So a response from the DM API is made of an array of traces, and to parse them we have to iterate through the array of traces. You can learn more about other traces here.
+
+To get a simple output from our agent, we'll just start off with looking for text traces, that store their content in the payload's message field: trace['payload']['message'].
+
+👉 Add a for loop iterating through all the response traces, looking for text traces and printing it's output.
+
+Python
+JavaScript
+
+const axios = require('axios');
+const readline = require('readline');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+
+        const traces = response.data;
+        for (let trace of traces) {
+            if (trace.type === 'text') {
+                console.log(trace.payload.message);
+            }
+        }
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+    }
+};
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('> What is your name?\n', (name) => {
+    interact(name, { type: 'launch' }).then(() => rl.close());
+});
+
+You should now get a much easier to understand output in your terminal.
+
+
+python3 VoiceflowAPIGuide.py
+> What is your name?
+Testing-Alex
+Hi there Python!
+Echoing
+Amazing! Now we've got text messages back from our Voiceflow agent. But the conversation's just one step… let's figure out how to send an answer back.
+
+## **How to send user replies:**
+
+Let's make a basic input loop now so that we can talk back and forth with our Voiceflow agent. Inside the loop, we'll take input from the user to be sent to Voiceflow agent, and then format it into a response text payload { 'type': 'text', 'payload': nextInput }.
+
+👉 Add a while (True): loop to your script to send input to your Voiceflow agent. Inside it, get input from a user, and add a call to the interact function.
+
+Python
+JavaScript
+
+const axios = require('axios');
+const readline = require('readline');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+
+        const traces = response.data;
+        for (let trace of traces) {
+            if (trace.type === 'text') {
+                console.log(trace.payload.message);
+            }
+        }
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+    }
+};
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const startConversation = async () => {
+    rl.question('> What is your name?\n', async (name) => {
+        await interact(name, { type: 'launch' });
+
+        while (true) {
+            rl.question('> Say something\n', async (nextInput) => {
+                await interact(name, { type: 'text', payload: nextInput });
+            });
+        }
+    });
+};
+
+startConversation();
+Now, if you run the script, you should be able to talk back and forth with your agent!
+
+
+python3 VoiceflowAPIGuide.py
+> What is your name?
+Testing-Alex
+Hi there Python!
+Echoing
+> Say something
+test
+Echo #1: test
+> Say something
+tests
+Echo #2: tests
+> Say something
+this is so cool!
+Echo #3: this is so cool!
+...
+Our simple testing flow only uses a text step and a capture step to get text input from a user, and is an infinite loop. Let's switch to a slightly more advanced agent.
+
+## **How to deal with other traces (button, end, and more):**
+
+👉 Import the second agent example project. Make sure to run it, publish it, and the update the API key in your Python code.
+
+Other than just the text step, you might want to be able to use buttons, but you might find that if you run the new project, the buttons don't appear in the terminal. That's because a button is a different type of trace than we have dealt with yet.
+
+To see the traces we haven't dealt with show up in the terminal so that we can debug, we'll add a catch-all trace behavior. We recommend to always add this kind of catch-all printing, as it's super helpful when you're developing and debugging.
+
+👉 Add an else: case to the trace handling loop.
+
+Python
+JavaScript
+
+const axios = require('axios');
+const readline = require('readline');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+
+        const traces = response.data;
+        for (let trace of traces) {
+            if (trace.type === 'text') {
+                console.log(trace.payload.message);
+            } else {
+                console.log('Unhandled trace');
+                console.log(trace);
+            }
+        }
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+    }
+};
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const startConversation = async () => {
+    rl.question('> What is your name?\n', async (name) => {
+        await interact(name, { type: 'launch' });
+
+        while (true) {
+            rl.question('> Say something\n', async (nextInput) => {
+                await interact(name, { type: 'text', payload: nextInput });
+            });
+        }
+    });
+};
+
+startConversation();
+Now, when we run the agent, we'll see that the unhandled button trace is printed. (You can ignore the path trace, it's just an extra trace output by Voiceflow that indicates what path you've gone down, and shouldn't be necessary for any projects).
+
+
+python3 VoiceflowAPIGuide.py
+[...]
+Unhandled trace
+{
+   "time":1721077675242,
+   "type":"choice",
+   "payload":{
+      "buttons":[
+         {
+            "name":"Hat",
+            "request":{
+               "type":"path-mu25u3epc",
+               [..]
+            }
+         },
+         {
+            "name":"Shirt",
+            "request":{
+               "type":"path-if27o3ev7",
+               [...]
+            }
+         },
+         {
+            "name":"Neither",
+            "request":{
+               "type":"path-2v28a3eqk",
+[...]
+To learn how to handle each different kind of trace, it's really useful to look at this trace documentation, and we'll walk through handling the choice (buttons) trace.
+
+The important steps are
+
+Storing all the buttons in an array
+Displaying the button options in the terminal and get input from the user
+Tell voiceflow which button we've clicked.
+👉 To store the buttons in an array, we'll create a global array at the top of the file called buttons and store each button in it by adding a new trace case for choice, and then print all the options available.
+
+Python
+JavaScript
+
+const axios = require('axios');
+const readline = require('readline');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+let buttons = [];
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+
+        const traces = response.data;
+        for (let trace of traces) {
+            if (trace.type === 'text') {
+                console.log(trace.payload.message);
+            } else if (trace.type === 'choice') {
+                buttons = trace.payload.buttons;
+                console.log('Choose one of the following:');
+                for (let i = 0; i < buttons.length; i++) {
+                    console.log(`${i + 1}. ${buttons[i].name}`);
+                }
+            } else {
+                console.log('Unhandled trace');
+                console.log(trace);
+            }
+        }
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+    }
+};
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const startConversation = async () => {
+    rl.question('> What is your name?\n', async (name) => {
+        await interact(name, { type: 'launch' });
+
+        while (true) {
+            rl.question('> Say something\n', async (nextInput) => {
+                await interact(name, { type: 'text', payload: nextInput });
+            });
+        }
+    });
+};
+
+startConversation();
+This will then print something like:
+
+
+Would you prefer to get a test hat or a test t-shirt?
+Choose one of the following:
+1. Hat
+2. Shirt
+3. Neither
+Now, we have to get the button selection from a user. We'll add some conditional logic to check if there are button choices available, and if so to interpret the input as an index into that list of choices. If the user selects one of the choices, we'll reply to Voiceflow with the request payload that each button had attached to it. If they give another answer, we'll pass it to Voiceflow as a normal text response, and it'll either be recognized as an intent, or go down the No Match path of the button.
+
+👉 Copy the new code below that gets a selected button from the user if there are any options, and sends the associated answer back.
+
+Python
+JavaScript
+
+const axios = require('axios');
+const readline = require('readline');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+let buttons = [];
+
+// user_id defines who is having the conversation, e.g. steve, john.doe@gmail.com, username_464
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+
+        const traces = response.data;
+        for (let trace of traces) {
+            if (trace.type === 'text') {
+                console.log(trace.payload.message);
+            } else if (trace.type === 'choice') {
+                buttons = trace.payload.buttons;
+                console.log('Choose one of the following:');
+                for (let i = 0; i < buttons.length; i++) {
+                    console.log(`${i + 1}. ${buttons[i].name}`);
+                }
+            } else {
+                console.log('Unhandled trace');
+                console.log(trace);
+            }
+        }
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+    }
+};
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const startConversation = async () => {
+    rl.question('> What is your name?\n', async (name) => {
+        await interact(name, { type: 'launch' });
+
+        while (true) {
+            if (buttons.length > 0) {
+                rl.question('> Choose a button number, or a reply\n', async (buttonSelection) => {
+                    try {
+                        const selection = parseInt(buttonSelection);
+                        if (isNaN(selection) || selection < 1 || selection > buttons.length) {
+                            throw new Error('Invalid selection');
+                        }
+                        await interact(name, buttons[selection - 1].request);
+                    } catch {
+                        await interact(name, { type: 'text', payload: buttonSelection });
+                    }
+                    buttons = [];
+                });
+            } else {
+                rl.question('> Say something\n', async (nextInput) => {
+                    await interact(name, { type: 'text', payload: nextInput });
+                });
+            }
+        }
+    });
+};
+
+startConversation();
+Now, we can answer 2 to select a Shirt!
+
+Handling buttons is similar to how many other traces are handled, so as you expand your interface using the DM API, you'll implement more and more traces.
+
+✨
+Extra Challenge
+
+The provided flow includes two images that are shared when you choose either a shirt or a hat. Try handling those traces and displaying the images from inside your Python script! As a hint, you could use matplotlib, pillow, or IPython.display to show the images. Good luck!
+
+One last trace that's important to handle is the end trace. It's triggered by Voiceflow when there's no more steps attached to a path, or you hit the end step. You might have seen it after choosing one of the options in your handy catch-all trace print: {'type': 'end'}.
+
+👉 To handle the end trace, we'll store a boolean called isRunning that's updated each time we interact with Voiceflow, and represents if we've encountered the end trace, and we'll loop while isRunning is true, and set it false if we encounter the end trace.
+
+Python
+JavaScript
+
+const axios = require('axios');
+const readline = require('readline');
+
+const api_key = 'YOUR_API_KEY_HERE'; // it should look like this: VF.DM.XXXXXXX.XXXXXX... keep this a secret!
+
+let buttons = [];
+
+// Function to interact with Voiceflow API
+const interact = async (user_id, request) => {
+    try {
+        const response = await axios.post(
+            `https://general-runtime.voiceflow.com/state/user/${user_id}/interact`,
+            { request: request },
+            {
+                headers: {
+                    'Authorization': api_key,
+                    'versionID': 'production',
+                    'accept': 'application/json',
+                    'content-type': 'application/json'
+                }
+            }
+        );
+
+        const traces = response.data;
+        for (let trace of traces) {
+            if (trace.type === 'text') {
+                console.log(trace.payload.message);
+            } else if (trace.type === 'choice') {
+                buttons = trace.payload.buttons;
+                console.log('Choose one of the following:');
+                for (let i = 0; i < buttons.length; i++) {
+                    console.log(`${i + 1}. ${buttons[i].name}`);
+                }
+            } else if (trace.type === 'end') {
+                // End of conversation
+                return false;
+            } else {
+                console.log('Unhandled trace');
+                console.log(trace);
+            }
+        }
+        // Conversation is still running
+        return true;
+    } catch (error) {
+        console.error('Error interacting with Voiceflow:', error);
+        return false;
+    }
+};
+
+// Readline interface for user input
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+// Function to start the conversation
+const startConversation = async () => {
+    rl.question('> What is your name?\n', async (name) => {
+        let isRunning = await interact(name, { type: 'launch' });
+
+        while (isRunning) {
+            if (buttons.length > 0) {
+                rl.question('> Choose a button number, or a reply\n', async (buttonSelection) => {
+                    try {
+                        isRunning = await interact(name, buttons[parseInt(buttonSelection) - 1].request);
+                    } catch {
+                        isRunning = await interact(name, { type: 'text', payload: buttonSelection });
+                    }
+                    buttons = [];
+                });
+            } else {
+                rl.question('> Say something\n', async (nextInput) => {
+                    isRunning = await interact(name, { type: 'text', payload: nextInput });
+                });
+            }
+        }
+
+        console.log('The conversation has ended.');
+        rl.close();
+    });
+};
+
+startConversation();
+Congratulations! We've made a nice little Voiceflow conversation interface here, and you can extrapolate lots of the lessons we've learned here to build apps and custom interfaces
+
+# **VOICEFLOW DIALOG MANAGEMENT API:**
+
+## **Overview:**
+
+The Dialog Manager API (DM API) allows any application to talk with a Voiceflow diagram using HTTP calls to the interact endpoint.
+
+Managing your conversation state when using DM API
+The DM API automatically creates and manages the conversation state. Identical requests to the DM API may produce different responses, depending on your diagram's logic and the previous request that the API received.
+
+Note that this means the DM API is not a REST API as it does not satisfy the statelessness property. The DM API's responses depend not only on the request, but also stored state within the server. Keep this in mind while working with the DM API.
+
+**DIAGRAM UPLOADED SEPARATELY AS A PHOTO**
+
+A diagram of how a conversation through the Dialog Management API works with example payloads, traces received, visual representations, and an example of how to integrate the Dialog Management API deeply into an app through a custom action.
+
+Tracking conversation state
+All endpoints take in a userID parameter, which is used to identify the caller and assign them a unique conversation state object.
+
+Multiple conversation sessions
+Multiple conversation sessions to the same Voiceflow project can be running simultaneously. Each session is identified by the userID that you specify.
+
+For example, customer A should communicate with /state/user/customerA/interact whereas customer B should communicate with /state/user/customerB/interact.
+
+When customer A gives a response, such as "I would like a large pizza", it will advance their specific conversation session identified by /state/user/customerA/interact. For example, the app might then ask what toppings customer A wants.
+
+Meanwhile, /state/user/customerB/interact's session remains unchanged, e.g, it might be waiting for customer B to give their order.
+
+Format of userID
+The format of userID is up to you. You can choose any string that fits your particular domain such as user1234 or 507f191e810c19729de860ea.
+
+There are a few best practices to defining a userID format:
+
+Unique - The userID should be unique to each user. Otherwise, if two users share the same userID, the Voiceflow app may leak information about user A's conversation to user B, which is a potential privacy violation.
+
+Non-sensitive - It is not recommended to use sensitive or private information in the userID such
+as emails, real names, or phone numbers.
+
+versionID
+DM API endpoints also accept a versionID header whose value is a version alias that points to a particular version of your Voiceflow project.
+
+The currently supported aliases are:
+
+development - The version displayed on the Voiceflow Creator's canvas
+
+production - The version that has been published
+
+Use the development alias whenever you are experimenting with your API, and the production version when integrating Voiceflow with your web app. Learn more about version and project IDs here.
+
+Updating your version
+To update the 'development' version exposed by the DM API, you must:
+
+Make your changes on the canvas and NLU manager
+
+Hit the blue Run button in the Voiceflow canvas to compile the diagram
+
+Hit the "Train Assistant" button in the Prototype tool to train the NLU model
+
+To update the 'production' version exposed by the DM API, you must:
+
+Make your changes on the canvas and NLU manager
+
+Hit the Publish button at the top-right corner of the Voiceflow canvas
+
+## **Trace Types:**
+
+Overview
+Flows in Voiceflow are a made of a variety of steps, and the steps have corresponding JSON traces. Step traces are used by Web Chat — and can be used by custom integrations — to determine what should be presented to the user upon events such as conversation launch, utterance submission, and button selection.
+
+In short, traces represent every output from Voiceflow. The Dialog Manager API interact endpoint returns an array of trace objects.
+
+All trace objects returned by the Dialog Manager API have a type attribute that identifies the type of element and a payload object with additional data such as a step’s response content or a button’s label.
+
+They also all contain a time property indicating at what time the trace elements was created (the time that the step that created it actually ran) in the Epoch Unix Timestamp format. This timestamp can help you debug which steps inside your flow take a long time, since for example text steps come almost instantly, but AI generation steps could take a couple of second to create.
+
+Below are key trace types that you will encounter.
+
+type: text
+This trace type is returned for the following Voiceflow elements:
+
+Text Step
+Response AI Step
+No match re-prompt
+No reply re-prompt
+Global No Match
+Global No Reply
+Example payload:
+
+JSON
+
+{
+  "type": "text",
+  "time": 1720552033,
+  "payload": {
+    "slate": {
+      "id": "", // unique string generated by Voiceflow
+      "content": [
+        {
+          "children": [
+            {
+              "text": "Hello there!"
+            }
+          ]
+        },
+        {
+          "children": [
+            {
+              "text": ""
+            }
+          ]
+        },
+        {
+          "children": [
+            {
+              "text": "Select an option or ask me a question"
+            }
+          ]
+        }
+      ],
+      "messageDelayMilliseconds": 1000 // default is 1000ms between responses
+    },
+    "message": "Hello there!\n\nSelect an option or ask me a question",
+    "delay": 1000 // default is 1000ms between responses
+  }
+}
+type: speak
+This trace type is returned for the following Voiceflow elements:
+
+Speak Step
+Audio Step
+No match reprompt
+No reply reprompt
+Global No Match
+Global No Reply
+Speak Step example:
+
+The src value for Speak steps is a data URI generated by Voiceflow.
+
+JSON
+
+{
+  "type": "speak",
+  "time": 1720552033,
+  "payload": {
+    "message": "Hello there!",
+    "type": "message",
+    "src": "data:audio/mpeg;base64,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",
+    "voice": "Ivy"
+  }
+}
+Audio Step example:
+
+The src value for Audio steps is a URL to the file and are generated by Voiceflow.
+
+The message value will be an empty string for Audio steps.
+
+JSON
+
+{
+  "type": "speak",
+  "time": 1720552033,
+  "payload": {
+    "message": "",
+    "type": "audio",
+    "src": "https://s3.amazonaws.com/com.example.audio.production/example-file.mp3"
+  }
+}
+type: visual
+This trace type is returned for the following Voiceflow elements: Image Step.
+
+The dimentions attribute value can be null.
+
+JSON
+
+{
+  "type": "visual",
+  "time": 1720552033,
+  "payload": {
+    "visualType": "image",
+    "image": "https://assets-global.website-files.com/example-file.png",
+    "dimensions": {
+      "width": 800,
+      "height": 800
+    },
+    "canvasVisibility": "full"
+  }
+}
+type: cardV2
+This trace type is returned for the following Voiceflow elements: Card Step.
+
+When you encounter a trace with a button, take note of the button objects' request.type values. A request.type value is a Voiceflow-generated path ID for the next element, and will need to be included in the next request to the Dialog Manager API upon button click.
+
+JSON
+
+{
+  "type": "cardV2",
+  "time": 1720552033,
+  "payload": {
+    "imageUrl": "https://assets-global.website-files.com/example-file.png",
+    "description": {
+      "slate": [
+        {
+          "children": [
+            {
+              "text": "This is a Card description"
+            }
+          ]
+        }
+      ],
+      "text": "This is a Card description"
+    },
+    "buttons": [
+      {
+        "name": "Click for next step",
+        "request": {
+          "type": "", // path ID generated by Voiceflow
+          "payload": {
+            "actions": [],
+            "label": "Click for next step"
+          }
+        }
+      }
+    ],
+    "title": "This is a Card title"
+  }
+}
+type: no-reply
+This trace type is returned for the following Voiceflow elements: No Reply.
+
+This example trace is for a no-reply with a timeout set to 10 seconds:
+
+JSON
+
+{
+  "type": "no-reply",
+  "time": 1720552033,
+  "payload": {
+    "timeout": 10 // converted to seconds
+  }
+}
+Note: If you encounter this trace, a No Reply setting was enabled. If the user does not complete an event (e.g. send a message) within the timeout specified, send another request to the Dialog Manager API to fetch the corresponding no-reply message. The request body format would be the below, and the returned trace type will be type: text:
+
+JSON
+
+{
+  "request": {
+    "type": "no-reply"
+  }
+}
+type: carousel
+This trace type is returned for the following Voiceflow elements: Carousel Step.
+
+When you encounter a trace with a button, take note of the button objects' request.type values. A request.type value is a Voiceflow-generated path ID for the next element, and will need to be included in the next request to the Dialog Manager API upon button click.
+
+This example trace is for a Carousel with two Cards:
+
+JSON
+
+{
+  "type": "carousel",
+  "time": 1720552033,
+  "payload": {
+    "layout": "Carousel",
+    "cards": [
+      {
+        "id": "", // unique string generated by Voiceflow
+        "title": "This is a Carousel card title",
+        "description": {
+          "slate": [
+            {
+              "children": [
+                {
+                  "text": "This is a Carousel card description"
+                }
+              ]
+            }
+          ],
+          "text": "This is a Carousel card description"
+        },
+        "imageUrl": "https://assets-global.website-files.com/example-file.png",
+        "buttons": [
+          {
+            "name": "Click for next step",
+            "request": {
+              "type": "", // path ID generated by Voiceflow
+              "payload": {
+                "label": "Click for next step",
+                "actions": []
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "", // unique string generated by Voiceflow
+        "title": "This is a second Carousel card title",
+        "description": {
+          "slate": [
+            {
+              "children": [
+                {
+                  "text": "This is a second Carousel card description. For this card, the image was uploaded as a png file."
+                }
+              ]
+            }
+          ],
+          "text": "This is a second Carousel card description. For this card, the image was uploaded as a png file."
+        },
+        "imageUrl": "https://cm4-production-assets.s3.amazonaws.com/example-file.png",
+        "buttons": [
+          {
+            "name": "Click for next step",
+            "request": {
+              "type": "", // path ID generated by Voiceflow
+              "payload": {
+                "label": "Click for next step",
+                "actions": []
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+type: choice (button step)
+This trace type is returned for the following Voiceflow elements: Button Step.
+
+When you encounter a trace with a button, take note of the button objects' request.type values. The request.type value will determine how you retrieve the next elements via the Dialog Manager API upon button click (examples below).
+
+The below example trace is for a Button step with two buttons and no intents:
+
+JSON
+
+{
+  "type": "choice",
+  "time": 1720552033,
+  "payload": {
+    "buttons": [
+      {
+        "name": "Check Account Balance",
+        "request": {
+          "type": "", // path ID generated by Voiceflow
+          "payload": {
+            "label": "Check Account Balance",
+            "actions": []
+          }
+        }
+      },
+      {
+        "name": "Forgot Password",
+        "request": {
+          "type": "", // path ID generated by Voiceflow
+          "payload": {
+            "label": "Forgot Password",
+            "actions": []
+          
+        }
+      }
+    ]
+  }
+}
+Notes on the above example:
+
+The request.type values for these buttons would be Voiceflow-generated path IDs for the next elements.
+In this case, upon button click: call the Dialog Manager API with the path ID as the action.type value to retrieve the next elements. For example, if the request.type value for the button is “path-xyz”, the request body would look like the below. (request.payload.label value is optional; if included in the request, the value will be set as the last_utterance variable value)
+JSON
+
+{
+  "request": {
+    "type": "path-xyz",
+    "payload": {
+      "label": "Check Account Balance"
+    }
+  }
+}
+The below example trace is for a Button step with two buttons with intents attached:
+
+JSON
+
+{
+  "type": "choice",
+  "time": 1720552033,
+  "payload": {
+    "buttons": [
+      {
+        "name": "Check Account Balance",
+        "request": {
+          "type": "intent",
+          "payload": {
+            "query": "Check Account Balance",
+            "label": "Check Account Balance",
+            "intent": {
+              "name": "check_account_balance"
+            },
+            "actions": [],
+            "entities": []
+          }
+        }
+      },
+      {
+        "name": "Forgot Password",
+        "request": {
+          "type": "intent",
+          "payload": {
+            "query": "Forgot Password",
+            "label": "Forgot Password",
+            "intent": {
+              "name": "forgot_password"
+            },
+            "actions": [],
+            "entities": []
+          }
+        }
+      }
+    ]
+  }
+}
+Notes on the above example:
+
+The request.type values for these buttons are “intent” and both have intent.name values in the payload.
+In this case, upon button click: call the Dialog Manager API with the intent name to retrieve the next elements. For example, if the request.type value is “intent” and the request.payload.intent.name is “forgot_password”, the request body would look like the below. [Alternatively, you could use a "text" request (e.g. { "action": { "type": "text", "payload": "Forgot Password" } }); this option would first pass the payload value through intent detection.]
+JSON
+
+{
+  "action": {
+    "type": "intent",
+    "payload": {
+      "intent": {
+        "name": "forgot_password"
+      },
+      "query": "",
+      "entities": []
+    }
+  }
+}
+Custom Actions
+A Custom Action trace type value will match the string entered for the corresponding Custom Action in the Creator App.
+
+The defaultPath attribute is useful if you want to set a default path during prototyping or user testing. The value will be 0 if the Custom Action's first path is assigned as the default in the Creator App, 1 if the second path is assigned, 2 if the third path is assigned, and so on.
+
+Example with the Action Body format set to “Text” in the Creator App:
+
+JSON
+
+{
+  "type": "calendar",
+  "time": 1720552033,
+  "payload": "{\n  \"today\": 1700096546693\n}",
+  "defaultPath": 0,
+  "paths": [
+    {
+      "event": {
+        "type": "done"
+      }
+    },
+    {
+      "event": {
+        "type": "cancel"
+      }
+    }
+  ]
+}
+Example with the Action Body format set to “JSON” in the Creator App:
+
+JSON
+
+{
+  "type": "calendar",
+  "time": 1720552033,
+  "payload": {
+    "today": 1700096585398
+  },
+  "defaultPath": 0,
+  "paths": [
+    {
+      "event": {
+        "type": "done"
+      }
+    },
+    {
+      "event": {
+        "type": "cancel"
+      }
+    }
+  ]
+}
+type: end
+This trace will be returned when an End action is reached in the design.
+
+Example for a Chat Agent:
+
+JSON
+
+{
+    "type": "end",
+    "time": 1720552033,
+    "payload": null
+}
+Example for a Voice Agent:
+
+JSON
+
+{
+    "type": "end"
+}
+type: completion-events
+You might encounter these traces while working with Interaction Streaming APIs:
+
+"completion-start"
+"completion-continue"
+"completion-end"
+
+## **DIALOG API ENDPOINTS:**
+
+### **Interact Stream POST API:**
+
+**CURL REQUEST**
+
+curl --request POST \
+     --url 'https://general-runtime.voiceflow.com/v2/project/projectID/user/userID/interact/stream?environment=development&completion_events=false&state=false' \
+     --header 'accept: text/event-stream' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "action": {
+    "type": "launch"
+  }
+}
+'
+
+**200 RESPONSE - EVENT EXAMPLE**
+
+id: 1
+event: trace
+data: {"type":"speak","payload":{"type":"message","message":"one large pepperoni pizza is that correct?"}}
+
+id: 2
+event: trace
+data: {"type":"visual","payload":{"image":"https://voiceflow.com/pizza.png"}}
+
+id: 3
+event: end
+
+
+post
+https://general-runtime.voiceflow.com/v2/project/{projectID}/user/{userID}/interact/stream
+Sends a request to advance the conversation session with your Voiceflow project, recieving a stream of events back.
+
+This endpoint initiates a streaming interaction session with a Voiceflow agent. Clients connect to this endpoint to receive server-side events (SSE) using the text/event-stream format. This allows for real time events during progression through the flow.
+
+Streaming events can be used to drastically improve latency and provide a more natural conversation by sending information to the user as soon as it's ready, instead of waiting for the entire Voiceflow turn to be finished.
+
+
+In the block above, events would be sent as goes:
+
+The API immediately sends an event for Message 1 ("give me a moment")
+Then a long API Call holds up the rest of the answer
+Once the API call is finished, the API sends an event for Message 2 "got it...".
+Streaming allows us to respond first with Message 1 before going into the long API Call (long-running-api-request).
+
+From the user's perspective, the agent will respond "give me a moment...", and after the API finishes in 10 seconds, then "got it, your flight is booked for...". This helps prevent an awkward silence while the API runs in the background and prepares the user to wait for an action to be finished.
+
+Streaming is great for breaking up long-running, blocking steps such as: AI Set/AI Response/Prompt, API, JavaScript, Function, KB Search.
+
+The response is a stream of trace events, which each roughly corresponds with a step on the canvas, sent as the step is invoked. Visit Trace Types to learn about the different types of traces.
+
+An Authorization header is required to validate the request. Learn more at: https://docs.voiceflow.com/reference/authentication
+
+Your projectID is also required as part of the URL, find this in the agent settings page:
+
+
+Note: this is not the same ID in the URL creator.voiceflow.com/project/.../
+
+Example Request
+cURL
+
+curl --request POST \
+     --url https://general-runtime.voiceflow.com/v2/project/$PROJECT_ID/user/$userID/interact/stream \
+     --header 'Accept: text/event-stream' \
+     --header 'Authorization: $VOICEFLOW_API_KEY' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "action": {
+    "type": "launch"
+  }
+}
+Example Response
+Response
+
+event: trace
+id: 1
+data: {
+  "type": "text",
+	"payload": {
+    "message": "give me a moment...",
+  },
+  "time": 1725899197143
+}
+
+event: trace
+id: 2
+data: {
+  "type": "debug",
+  "payload": {
+    "type": "api",
+    "message": "API call successfully triggered"
+  },
+  "time": 1725899197146
+}
+
+event: trace
+id: 3
+data: {
+  "type": "text",
+	"payload": {
+    "message": "got it, your flight is booked for June 2nd, from London to Sydney.",
+  },
+  "time": 1725899197143
+}
+
+event: end
+id: 4
+You can check out an example project here using the API: https://github.com/voiceflow/streaming-wizard
+
+For more details on advanced settings, reference dedicated documentation:
+
+completion_events to stream LLM responses as they are being generated, instead of waiting for the entire response
+Path Params
+projectID
+string
+required
+The ID of your Voiceflow project. You can find this in the settings for your agent. Note: this is not the same ID in the URL creator.voiceflow.com/project/.../
+
+userID
+string
+required
+A unique user ID specified by the caller.
+
+The Dialog Manager API creates an independent conversation session for each user ID, allowing your app to talk with different users simultaneously.
+
+Query Params
+environment
+string
+Defaults to development
+the environment of the project to run against, this was previously called versionID. aliases are supported, such as development and production.
+The development environment is only updated when "Run" is clicked on the Voiceflow canvas.
+
+development
+completion_events
+string
+Defaults to false
+[advanced] whether or not to break up LLM traces into streamed-in chunks - documentation
+
+
+false
+state
+string
+Defaults to false
+[advanced] send back the new user state as an event.
+
+
+false
+Body Params
+action
+object | null
+required
+The user's response, e.g, user requests starting a conversation or advances the conversation by providing some textual response.
+
+
+Launch Request
+
+Text Request
+
+Intent Request
+variables
+object
+The variables to update in the user's state. This object will be merged with the existing variables in the user's state.
+
+
+Merge Variables object
+
+Add Field
+
+#### **Stream Completion Events API:**
+
+Break down AI responses into discrete chunks for faster response times.
+
+When conversing with LLMs such as ChatGPT or Claude, you notice that unlike human communications, where we send complete message by complete message, it "streams" in the text one piece at a time, and not even necessarily in complete words. LLMs work by generating their responses token by token.
+
+
+It can take quite long for an LLM to write a complete paragraph — even for the fastest models.
+
+With the Response AI / Prompt step, by default the API will wait for the entire response to be generated before sending the text back. This can often take a few seconds and mean users have to wait a long time and then suddenly get a very long message.
+
+By setting the ?completion_events=true query parameter in the Interact Stream API, Voiceflow will return output from the Response AI / Prompt steps as a text stream as it's generated, which can be shown to the user on an interface capable of handling partial responses.
+
+📘
+Only the Response AI / Prompt step produces completion events
+
+Example Response completion_events=false
+Response
+
+event: trace
+id: 1
+data: {
+  "type": "text",
+	"payload": {
+    "message": "Welcome to our service. How can I help you today? Perhaps you're interested in our latest offers or need assistance with an existing order? Let me know if you have any other questions!",
+  },
+  "time": 1725899197143
+}
+
+event: end
+id: 2
+This is what a response might look like normally. The user might have to wait a bit before seeing the message.
+
+Example Response completion_events=true
+Response
+
+event: trace
+id: 1
+data: {
+  "type": "completion",
+  "payload": {
+    "state": "start"
+  },
+  "time": 1725899197143
+}
+
+event: trace
+id: 2
+data: {
+  "type": "completion",
+  "payload": {
+    "state": "content",
+    "content": "Welcome to our service. How can I help you today? Perh",
+  },
+  "time": 1725899197144
+}
+
+event: trace
+id: 3
+data: {
+  "type": "completion",
+  "payload": {
+    "state": "content",
+    "content": "aps you're interested in our latest offers or need ",
+  },
+  "time": 1725899197145
+}
+
+event: trace
+id: 4
+data: {
+  "type": "completion",
+  "payload": {
+    "state": "content",
+    "content": "assistance with an existing order? Let",
+  },
+  "time": 1725899197146
+}
+
+event: trace
+id: 5
+data: {
+  "type": "completion",
+  "payload": {
+    "state": "content",
+    "content": " me know if you have any other questions!",
+  },
+  "time": 1725899197147
+}
+
+event: trace
+id: 6
+data: {
+  "type": "completion",
+  "payload": {
+    "state": "end",
+  },
+  "time": 1725899197148
+}
+
+event: end
+id: 7
+With completion_events turned on, it still takes the same total time to get the entire message, but the user will be able to see the first chunk of text within milliseconds: Welcome to our servi..."
+
+Enabling completion_events means the API will return a completion trace instead of a text (or speak) trace. There is a payload.state property which is one of three values:
+
+state: "start" to signal the start of a completion stream.
+state: "content" to stream in additional text to the same text block, under the content property
+state: "end" to signal that the completion is now finished, and the final LLM token usage
+These trace types facilitate the delivery of text streaming as the large language model (LLM) generates the response message. Note, the content data may not always be in complete sentences or words.
+
+It is the responsibility of the API caller to stitch the data together and have it reflect live on the conversation interface.
+
+Examples
+See our streaming-wizard demo (NodeJS). Note the use of the "end" state as a marker to start a new line in the conversation.
+
+Deterministic and Streamed Messages
+It may be jarring to pair this with existing deterministic messages that come out fully completed. Some messages stream in, while others are sent as whole. To mitigate this, you can either:
+
+create a fake streaming effect for deterministic messages that matches what messages streamed through completion events look like
+accumulate enough completion traces to form a complete sentence, and send group streamed responses into sentences before displaying them. Look for delimiters such as . ? ! ; \n (newline). You can then send the completion as a group of smaller complete messages.
+
+### **Interact POST API:**
+
+**CURL REQUEST - EXAMPLE TEXT REQUEST **
+
+curl --request POST \
+     --url 'https://general-runtime.voiceflow.com/state/user/userID/interact?logs=off' \
+     --header 'accept: application/json' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "action": {
+    "type": "launch"
+  },
+  "config": {
+    "tts": false,
+    "stripSSML": true,
+    "stopAll": false,
+    "excludeTypes": [
+      "block",
+      "debug",
+      "flow"
+    ]
+  }
+}
+'
+
+**200 RESPONSE - DIALOG EXAMPLE**
+
+[
+  {
+    "type": "speak",
+    "payload": {
+      "type": "message",
+      "message": "one large pepperoni pizza is that correct?"
+    }
+  },
+  {
+    "type": "speak",
+    "payload": {
+      "type": "audio",
+      "src": "https://voiceflow.com/chime.mp3",
+      "message": "<audio src='https://voiceflow.com/chime.mp3'/>"
+    }
+  },
+  {
+    "type": "visual",
+    "payload": {
+      "image": "https://voiceflow.com/splash.mp3"
+    }
+  },
+  {
+    "type": "choice",
+    "payload": {
+      "choices": [
+        {
+          "name": "yes"
+        },
+        {
+          "name": "no"
+        }
+      ]
+    }
+  }
+]
+
+**CURL REQUEST - EXAMPLE INTENT REQUEST **
+
+curl --request POST \
+     --url 'https://general-runtime.voiceflow.com/state/user/userID/interact?logs=off' \
+     --header 'accept: application/json' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "action": {
+    "type": "intent",
+    "payload": {
+      "query": "I want a large pepperoni pizza",
+      "intent": {
+        "name": "order_pizza_intent"
+      },
+      "entities": [
+        {
+          "name": "size",
+          "value": "large"
+        },
+        {
+          "name": "type",
+          "value": "pepperoni"
+        }
+      ],
+      "confidence": 0.5
+    }
+  },
+  "config": {
+    "tts": false,
+    "stripSSML": true,
+    "stopAll": false,
+    "excludeTypes": [
+      "block",
+      "debug",
+      "flow"
+    ]
+  },
+  "state": {
+    "variables": {
+      "x_var": 1
+    }
+  }
+}
+'
+
+**200 RESPONSE - DIALOG EXAMPLE**
+
+[
+  {
+    "type": "speak",
+    "payload": {
+      "type": "message",
+      "message": "one large pepperoni pizza is that correct?"
+    }
+  },
+  {
+    "type": "speak",
+    "payload": {
+      "type": "audio",
+      "src": "https://voiceflow.com/chime.mp3",
+      "message": "<audio src='https://voiceflow.com/chime.mp3'/>"
+    }
+  },
+  {
+    "type": "visual",
+    "payload": {
+      "image": "https://voiceflow.com/splash.mp3"
+    }
+  },
+  {
+    "type": "choice",
+    "payload": {
+      "choices": [
+        {
+          "name": "yes"
+        },
+        {
+          "name": "no"
+        }
+      ]
+    }
+  }
+]
+
+**CURL REQUEST - EXAMPLE LAUNCH REQUEST **
+
+curl --request POST \
+     --url 'https://general-runtime.voiceflow.com/state/user/userID/interact?logs=off' \
+     --header 'accept: application/json' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "action": {
+    "type": "launch"
+  },
+  "config": {
+    "tts": false,
+    "stripSSML": true,
+    "stopAll": false,
+    "excludeTypes": [
+      "block",
+      "debug",
+      "flow"
+    ]
+  },
+  "state": {
+    "variables": {
+      "x_var": 2
+    }
+  }
+}
+'
+
+**200 RESPONSE - DIALOG EXAMPLE**
+
+[
+  {
+    "type": "speak",
+    "payload": {
+      "type": "message",
+      "message": "one large pepperoni pizza is that correct?"
+    }
+  },
+  {
+    "type": "speak",
+    "payload": {
+      "type": "audio",
+      "src": "https://voiceflow.com/chime.mp3",
+      "message": "<audio src='https://voiceflow.com/chime.mp3'/>"
+    }
+  },
+  {
+    "type": "visual",
+    "payload": {
+      "image": "https://voiceflow.com/splash.mp3"
+    }
+  },
+  {
+    "type": "choice",
+    "payload": {
+      "choices": [
+        {
+          "name": "yes"
+        },
+        {
+          "name": "no"
+        }
+      ]
+    }
+  }
+]
+
+**CURL REQUEST - EXAMPLE WITH CONFIG REQUEST **
+
+curl --request POST \
+     --url 'https://general-runtime.voiceflow.com/state/user/userID/interact?logs=off' \
+     --header 'accept: application/json' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "action": {
+    "type": "text",
+    "payload": "I would like to order a huge pepperoni pizza"
+  },
+  "config": {
+    "tts": false,
+    "stripSSML": true,
+    "stopAll": false,
+    "excludeTypes": [
+      "block",
+      "debug",
+      "flow"
+    ],
+    "stopTypes": [
+      "Pay Credit Card"
+    ]
+  },
+  "state": {
+    "variables": {
+      "x_var": true
+    }
+  }
+}
+'
+
+**200 RESPONSE - DIALOG EXAMPLE**
+
+[
+  {
+    "type": "speak",
+    "payload": {
+      "type": "message",
+      "message": "one large pepperoni pizza is that correct?"
+    }
+  },
+  {
+    "type": "speak",
+    "payload": {
+      "type": "audio",
+      "src": "https://voiceflow.com/chime.mp3",
+      "message": "<audio src='https://voiceflow.com/chime.mp3'/>"
+    }
+  },
+  {
+    "type": "visual",
+    "payload": {
+      "image": "https://voiceflow.com/splash.mp3"
+    }
+  },
+  {
+    "type": "choice",
+    "payload": {
+      "choices": [
+        {
+          "name": "yes"
+        },
+        {
+          "name": "no"
+        }
+      ]
+    }
+  }
+]
+
+
+**200 RESPONSE - CUSTOM TRACE** 
+
+{
+  "trace": [
+    {
+      "type": "speak",
+      "payload": {
+        "type": "message",
+        "message": "charging payment now!"
+      }
+    },
+    {
+      "type": "Pay Credit Card",
+      "payload": "{ 'sender': 'user@gmail', 'type': 'visa' }",
+      "paths": [
+        {
+          "event": {
+            "name": "success"
+          }
+        },
+        {
+          "event": {
+            "name": "denied"
+          }
+        },
+        {
+          "event": {
+            "name": "pending"
+          }
+        }
+      ],
+      "defaultPath": 0
+    }
+  ]
+}
+
+post
+https://general-runtime.voiceflow.com/state/user/{userID}/interact
+Sends a request to advance the conversation session with your Voiceflow project.
+
+Requests
+There are different types of requests that can be sent. To see a list of all request types, check out the documentation for the action field below.
+
+To start a conversation, you should send a launch request. Then, to pass in your user's response, you should send a text request. If you have your own NLU matching, then you may want to directly send an intent request.
+
+See the Request Examples on the right panel for more examples of valid request bodies.
+
+Response Traces
+After processing your request, the Dialog Manager API will then respond with an array of "traces" which are pieces of the overall response from the project:
+
+JSON
+
+[{
+  "type": "speak",
+  "payload": {
+    "type": "message",
+    "message": "would you like fries with that?"
+  }
+}, {
+  "type": "visual",
+  "payload": {
+    "image": "https://voiceflow.com/pizza.png"
+  }
+}]
+In the example above, the Voiceflow project responded by saying "would you like fries with that?" and an image of a pizza. You can then display the chatbot's response and the image in your app.
+
+There are many types of response traces. Each trace is produced by a particular block on your Voiceflow project. Expand the documentation for the 200 OK response below to see a list of possible response traces.
+
+Runtime Logs
+The logs query parameter can be used to enable debug logging, which includes log traces in the response.
+
+Legacy responses
+For legacy compatibility, you set the verbose query parameter to true to get a response similar to our legacy Stateless API.
+
+JSON
+
+// <- simplified verbose response body {
+  "state": {
+    "stack": [{
+      "programID": "home flow",
+      "nodeID": "yes no choice node"
+    }],
+    "storage": {},
+    "variables": {
+      "pizza_type": "pepperoni"
+    }
+  },
+  "trace": [{
+    "type": "speak",
+    "payload": {
+      "type": "message",
+      "message": "would you like fries with that?"
+    }
+  }, {
+    "type": "visual",
+    "payload": {
+      "image": "https://voiceflow.com/pizza.png"
+    }
+  }]
+}
+Requests
+There are different types of requests that can be sent. To see a list of all request types, check out the documentation for the action field below.To start a conversation, you should send a launch request. Then, to pass in your user's response, you should send a text request. If you have your own NLU matching, then you may want to directly send an intent request.See the Request Examples on the right panel for more examples of valid request bodies.
+
+Response Traces
+After processing your request, the Dialog Manager API will then respond with an array of "traces" which are pieces of the overall response from the project:json[{ "type": "speak", "payload": { "type": "message", "message": "would you like fries with that?" }}, { "type": "visual", "payload": { "image": "https://voiceflow.com/pizza.png" }}]In the example above, the Voiceflow project responded by saying "would you like fries with that?" and an image of a pizza. You can then display the chatbot's response and the image in your app. There are many types of response traces. Each trace is produced by a particular block on your Voiceflow project. Expand the documentation for the 200 OK response below to see a list of possible response traces.
+
+Runtime Logs
+The logs query parameter can be used to enable debug logging, which includes log traces in the response.
+
+Legacy responses
+For legacy compatibility, you set the verbose query parameter to true to get a response similar to our legacy Stateless API.json// <- simplified verbose response body { "state": { "stack": [{ "programID": "home flow", "nodeID": "yes no choice node" }], "storage": {}, "variables": { "pizza_type": "pepperoni" } }, "trace": [{ "type": "speak", "payload": { "type": "message", "message": "would you like fries with that?" } }, { "type": "visual", "payload": { "image": "https://voiceflow.com/pizza.png" } }]}
+
+Path Params
+userID
+string
+required
+A unique user ID specified by the caller.
+
+The Dialog Manager API creates an independent conversation session for each user ID, allowing your app to talk with different users simultaneously.
+
+Query Params
+verbose
+boolean
+Enables verbose responses similar to the legacy Stateless API.
+
+This parameter exists for legacy compatibility reasons. New projects should always have this value set to false.
+
+
+logs
+Defaults to off
+configure debug logs
+
+
+Option 1
+
+Option 2
+Body Params
+action
+object | null
+The user's response, e.g, user requests starting a conversation or advances the conversation by providing some textual response.
+
+
+Launch Request
+
+Text Request
+
+Intent Request
+config
+object
+Optional settings to configure the response
+
+
+Config object
+state
+object
+
+state object
+Headers
+versionID
+string
+The version of your Voiceflow project to contact.
+
+Use 'development' to contact the version on canvas or 'production' to contact the published version.
+
+### **Update Variables PATCH API:**
+
+patch
+https://general-runtime.voiceflow.com/state/user/{userID}/variables
+Updates the variables in the user's state by merging with the provided properties in the request body
+
+Path Params
+userID
+string
+required
+A unique user ID specified by the caller.
+
+The Dialog Manager API creates an independent conversation session for each user ID, allowing your app to talk with different users simultaneously.
+
+Body Params
+Contains the variables to update
+
+
+Add Field
+Headers
+versionID
+string
+The version of your Voiceflow project to contact.
+
+Use 'development' to contact the version on canvas or 'production' to contact the published version.
+
+Response
+
+200
+OK
+
+Response body
+object
+stack
+array of objects
+required
+Contains all of the user's active flows
+
+object
+programID
+string
+required
+The flow that the user has on the stack
+
+diagramID
+string
+required
+The ID of the diagram the flow belongs to
+
+nodeID
+string | null
+The current block this flow is on
+
+variables
+object
+The flow-scoped variables
+
+Has additional fields
+storage
+object
+Internal flow parameters used by the runtime
+
+Has additional fields
+commands
+array of objects
+object
+type
+string
+push jump
+
+event
+object
+Has additional fields
+storage
+object
+required
+Has additional fields
+variables
+object
+required
+Has additional fields
+
+## **STATE API ENDPOINTS:**
+
+### **Understanding the Dialog State Stack:**
+
+
+Overview
+In Voiceflow, a dialog state is assigned to a unique userID. This userID can be any string and is typically something unique that easily references the person on the session - such as an username, email, device ID, or phone number. (e.g. user54646, user@gmail.com, 1-647-424-4242, etc.). If you're not sure what to call it just for testing purposes, you can just pick a random {userID}.
+
+The response schema consists of two main properties:
+
+Stack
+Variables
+We will cover each property below, as well as an overview of the Voiceflow context model.
+
+Stack
+The stack is an array of flows that are currently active in the conversation. Each flow contains:
+
+A programID: the ID of the flow, which can be found in the URL of the address bar <https://creator.voiceflow.com/project/{versionID}/canvas/{**programID**>)
+nodeID: current block this flow is on
+variables: flow-scoped variables
+storage: internal flow parameters for runtime
+commands
+In the example below, you can see that there are three flows available on the stack (620e669eac2f70001cf9d85a, 620e669eac2f70001cf9d85b and 620e669eac2f70001cf9d85c) and we are currently sitting on flow 620e669eac2f70001cf9d85c, as denoted by the nodeID pointing to a block within this flow.
+
+Note: the programID of the first flow in the stack is always the versionID of the Agent.
+
+Example stack
+
+JSON
+
+"stack": [
+        {
+            "nodeID": null,
+            "programID": "620e669eac2f70001cf9d85a", //<-- versionID of the agent
+            "storage": {},
+            "commands": [],
+            "variables": {}
+        },
+        {
+            "nodeID": null,
+            "programID": "620e669eac2f70001cf9d85b", //<-- starting flow
+            "storage": {
+                "output": [
+                    {
+                        "children": [
+                            {
+                                "text": "What size?"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "commands": [],
+            "variables": {}
+        },
+        {
+            "nodeID": "61f40992f0e4e70a1f2328d1",
+            "programID": "620e669eac2f70001cf9d85c",//<-- top-level flow
+            "storage": {
+                "outputMap": null,
+                "output": [
+                    {
+                        "children": [
+                            {
+                                "text": "You can get an additional pizza for half the price today. Would you like to do that?"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "commands": [],
+            "variables": {
+            			"discount_code": "DEAL4TWO"
+            }
+        }
+Variables
+The two ways you can create variable keys in your Interaction Model is through:
+
+Entities
+Variables
+The difference between Entities and Variables is how they are assigned values at runtime. An entity value is assigned through a user interaction (e.g. utterance) whereas a variable is dynamically assigned a value from the design itself based on a user action (e.g. through an API call or custom code).
+
+Variable examples
+
+global_variables
+flow_variable
+
+{
+            "nodeID": "61f40992f0e4e70a1f2328d1",
+            "programID": "620e669eac2f70001cf9d85c",//<-- top-level flow
+            "storage": {
+                "outputMap": null,
+                "output": [
+                    {
+                        "children": [
+                            {
+                                "text": "You can get an additional pizza for half the price today. Would you like to do that?"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "commands": [],
+            "variables": {
+            			"discount_code": "DEAL4TWO" //<-- flow-scoped variable
+            }
+
+
+### **Fetch State GET API:**
+
+**CURL REQUEST **
+
+curl --request GET \
+     --url https://general-runtime.voiceflow.com/state/user/userID \
+     --header 'accept: application/json'
+
+**200 RESPONSE - EXAMPLE STATE**
+
+{
+  "stack": [
+    {
+      "programID": "6062631246b44d80a8a345b4",
+      "diagramID": "653fb8df7d32ab70457438f4",
+      "nodeID": "60626307fd9a230006a5e289"
+    }
+  ],
+  "storage": {},
+  "variables": {
+    "pizza_type": "pepperoni",
+    "sessions": 5,
+    "payment": "credit"
+  }
+}
+
+get
+https://general-runtime.voiceflow.com/state/user/{userID}
+Fetch the user's current state
+
+Path Params
+userID
+string
+required
+A unique user ID specified by the caller.
+
+The Dialog Manager API creates an independent conversation session for each user ID, allowing your app to talk with different users simultaneously.
+
+Headers
+versionID
+string
+The version of your Voiceflow project to contact.
+
+Use 'development' to contact the version on canvas or 'production' to contact the published version.
+
+Response
+
+200
+OK
+
+Response body
+
+State
+user metadata - what block they are currently on, what flow they are on, their variables
+
+object
+stack
+array of objects
+required
+Contains all of the user's active flows
+
+object
+programID
+string
+required
+The flow that the user has on the stack
+
+diagramID
+string
+required
+The ID of the diagram the flow belongs to
+
+nodeID
+string | null
+The current block this flow is on
+
+variables
+object
+The flow-scoped variables
+
+Has additional fields
+storage
+object
+Internal flow parameters used by the runtime
+
+Has additional fields
+commands
+array of objects
+object
+type
+string
+push jump
+
+event
+object
+Has additional fields
+storage
+object
+required
+Has additional fields
+variables
+object
+required
+Has additional fields
+
+### **Update State PUT API:**
+
+**CURL REQUEST - EXAMPLE STATE **
+
+curl --request PUT \
+     --url https://general-runtime.voiceflow.com/state/user/userID \
+     --header 'accept: application/json' \
+     --header 'content-type: application/json'
+
+**200 RESPONSE - EXAMPLE STATE**
+
+{
+  "stack": [
+    {
+      "programID": "6062631246b44d80a8a345b4",
+      "diagramID": "653fb8df7d32ab70457438f4",
+      "nodeID": "60626307fd9a230006a5e289"
+    }
+  ],
+  "storage": {},
+  "variables": {
+    "pizza_type": "pepperoni",
+    "sessions": 5,
+    "payment": "credit"
+  }
+}
+
+**CURL REQUEST - EMPTY STATE **
+
+curl --request PUT \
+     --url https://general-runtime.voiceflow.com/state/user/userID \
+     --header 'accept: application/json' \
+     --header 'content-type: application/json'
+
+**200 RESPONSE - EMPTY STATE**
+
+{
+  "stack": [
+    {
+      "programID": "6062631246b44d80a8a345b4",
+      "diagramID": "653fb8df7d32ab70457438f4",
+      "nodeID": "60626307fd9a230006a5e289"
+    }
+  ],
+  "storage": {},
+  "variables": {
+    "pizza_type": "pepperoni",
+    "sessions": 5,
+    "payment": "credit"
+  }
+}
+
+put
+https://general-runtime.voiceflow.com/state/user/{userID}
+Update the user's current state.
+
+This is useful for externally updating the user's state or resetting the state.
+
+Path Params
+userID
+string
+required
+A unique user ID specified by the caller.
+
+The Dialog Manager API creates an independent conversation session for each user ID, allowing your app to talk with different users simultaneously.
+
+Body Params
+Valid new user state
+
+stack
+array of objects
+required
+Contains all of the user's active flows
+
+
+ADD object
+storage
+object
+required
+
+storage object
+variables
+object
+required
+
+variables object
+Headers
+versionID
+string
+The version of your Voiceflow project to contact.
+
+Use 'development' to contact the version on canvas or 'production' to contact the published version.
+
+Response
+
+200
+successfully updated
+
+Response body
+object
+stack
+array of objects
+required
+Contains all of the user's active flows
+
+object
+programID
+string
+required
+The flow that the user has on the stack
+
+diagramID
+string
+required
+The ID of the diagram the flow belongs to
+
+nodeID
+string | null
+The current block this flow is on
+
+variables
+object
+The flow-scoped variables
+
+Has additional fields
+storage
+object
+Internal flow parameters used by the runtime
+
+Has additional fields
+commands
+array of objects
+object
+type
+string
+push jump
+
+event
+object
+Has additional fields
+storage
+object
+required
+Has additional fields
+variables
+object
+required
+Has additional fields
+
+### **Delete State DELETE API:**
+
+**CURL REQUEST **
+
+curl --request DELETE \
+     --url https://general-runtime.voiceflow.com/state/user/userID
+
+
+delete
+https://general-runtime.voiceflow.com/state/user/{userID}
+Delete all state and session data for user.
+
+Path Params
+userID
+string
+required
+A unique user ID specified by the caller.
+
+The Dialog Manager API creates an independent conversation session for each user ID, allowing your app to talk with different users simultaneously.
+
+Headers
+versionID
+string
+The version of your Voiceflow project to contact.
+
+Use 'development' to contact the version on canvas or 'production' to contact the published version.
+
+Response
+200
+OK

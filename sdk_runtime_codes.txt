@@ -1,0 +1,2153 @@
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/main.d.ts
+
+export * from './runtime';
+export * from './sdk';
+export * from './trace';
+//# sourceMappingURL=main.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/main.js
+
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./runtime"), exports);
+__exportStar(require("./sdk"), exports);
+__exportStar(require("./trace"), exports);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/index.d.ts
+
+export * from './runtime.interface';
+export * from './runtime.service';
+export * from './runtime.service.auth';
+export * from './runtime.service.prototype';
+export * from './runtime.service.public';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/index.js
+
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./runtime.interface"), exports);
+__exportStar(require("./runtime.service"), exports);
+__exportStar(require("./runtime.service.auth"), exports);
+__exportStar(require("./runtime.service.prototype"), exports);
+__exportStar(require("./runtime.service.public"), exports);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.interface.d.ts
+
+import { BaseRequest, Trace } from '@voiceflow/base-types';
+export { Trace } from '@voiceflow/base-types';
+type FetchFn = (...parameters: any[]) => Promise<any>;
+export interface RuntimeOptions<V = AuthVerify | PublicVerify | PrototypeVerify> {
+    url: string;
+    verify: V;
+    /**
+     * A ponyfill to use for `fetch()`.
+     * Defaults to the global `fetch()`.
+     */
+    fetchPonyfill?: FetchFn;
+}
+export interface AuthVerify {
+    authorization: string;
+}
+export interface PublicVerify {
+    projectID: string;
+}
+export interface PrototypeVerify {
+    projectID: string;
+    versionID: string;
+    prototype: true;
+}
+export type AnyVerify = Partial<AuthVerify & PublicVerify & PrototypeVerify>;
+export declare const isAuthRuntimeOptions: (options: RuntimeOptions<AnyVerify>) => options is RuntimeOptions<AuthVerify>;
+export declare const isPublicRuntimeOptions: (options: RuntimeOptions<AnyVerify>) => options is RuntimeOptions<PublicVerify>;
+export declare const isPrototypeRuntimeOptions: (options: RuntimeOptions<AnyVerify>) => options is RuntimeOptions<PrototypeVerify>;
+export interface RuntimeInteractRequest {
+    action: RuntimeAction;
+    sessionID: string;
+    versionID?: string;
+    config?: any;
+}
+export interface RuntimeFeedbackRequest {
+    name: string;
+    sessionID: string;
+    versionID?: string;
+    [key: string]: any;
+}
+export interface RuntimeInteractResponse {
+    state: RuntimeState;
+    request: RuntimeAction;
+    trace: Trace.AnyTrace[];
+}
+export type RuntimeAction = BaseRequest.TextRequest | BaseRequest.LaunchRequest | BaseRequest.IntentRequest | BaseRequest.ActionRequest | BaseRequest.GeneralRequest | BaseRequest.BaseRequest;
+export declare const isRuntimeAction: (value: unknown) => value is RuntimeAction;
+export interface IntentActionPayload {
+    query: string;
+    intent: {
+        name: string;
+    };
+    entities: {
+        name: string;
+        value: string;
+    }[];
+    confidence?: number;
+}
+export type IntentAction = BaseRequest.IntentRequest;
+export type ActionType = BaseRequest.RequestType;
+export declare const ActionType: typeof BaseRequest.RequestType;
+export declare const createIntentAction: (payload: BaseRequest.IntentRequestPayload) => BaseRequest.IntentRequest;
+export interface RuntimeState {
+    turn: Record<string, any>;
+    storage: Record<string, any>;
+    variables: Record<string, any>;
+}
+export declare const isRuntimeTraceType: (value: unknown) => value is Trace.TraceType;
+export declare const isRuntimeTrace: (value: unknown) => value is Trace.BaseTraceFrame<any, import("@voiceflow/base-types/build/cjs/node/utils").BaseTraceFramePath<import("@voiceflow/base-types/build/cjs/node/utils").BaseEvent>>;
+export interface RuntimeHttpRequest {
+    method?: string;
+    params?: URLSearchParams;
+    body?: any;
+    headers?: HeadersInit;
+}
+//# sourceMappingURL=runtime.interface.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.interface.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isRuntimeTrace = exports.isRuntimeTraceType = exports.createIntentAction = exports.ActionType = exports.isRuntimeAction = exports.isPrototypeRuntimeOptions = exports.isPublicRuntimeOptions = exports.isAuthRuntimeOptions = exports.Trace = void 0;
+const base_types_1 = require("@voiceflow/base-types");
+var base_types_2 = require("@voiceflow/base-types");
+Object.defineProperty(exports, "Trace", { enumerable: true, get: function () { return base_types_2.Trace; } });
+const isAuthRuntimeOptions = (options) => {
+    return !!options?.verify?.authorization;
+};
+exports.isAuthRuntimeOptions = isAuthRuntimeOptions;
+const isPublicRuntimeOptions = (options) => {
+    return typeof options?.verify?.projectID === 'string';
+};
+exports.isPublicRuntimeOptions = isPublicRuntimeOptions;
+const isPrototypeRuntimeOptions = (options) => {
+    return (options?.verify?.prototype === true &&
+        typeof options?.verify?.versionID === 'string' &&
+        typeof options?.verify?.projectID === 'string');
+};
+exports.isPrototypeRuntimeOptions = isPrototypeRuntimeOptions;
+const isRuntimeAction = (value) => typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'type');
+exports.isRuntimeAction = isRuntimeAction;
+exports.ActionType = base_types_1.BaseRequest.RequestType;
+const createIntentAction = (payload) => ({
+    type: exports.ActionType.INTENT,
+    payload,
+});
+exports.createIntentAction = createIntentAction;
+const isRuntimeTraceType = (value) => typeof value === 'string' && Object.values(base_types_1.Trace.TraceType).includes(value);
+exports.isRuntimeTraceType = isRuntimeTraceType;
+const isRuntimeTrace = (value) => typeof value === 'object' &&
+    Object.prototype.hasOwnProperty.call(value, 'type') &&
+    (0, exports.isRuntimeTraceType)(value.type);
+exports.isRuntimeTrace = isRuntimeTrace;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.auth.d.ts
+
+import type { AuthVerify, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from '../runtime/runtime.interface';
+import { RuntimeService } from '../runtime/runtime.service';
+export declare class AuthRuntimeService extends RuntimeService {
+    private readonly authorization;
+    constructor(options: RuntimeOptions<AuthVerify>);
+    interact(request: RuntimeInteractRequest): Promise<RuntimeInteractResponse>;
+    feedback(): Promise<never>;
+    getPublishing(): Promise<never>;
+    createTranscript(): Promise<never>;
+}
+//# sourceMappingURL=runtime.service.auth.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.auth.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthRuntimeService = void 0;
+const runtime_service_1 = require("../runtime/runtime.service");
+class AuthRuntimeService extends runtime_service_1.RuntimeService {
+    constructor(options) {
+        super(options);
+        this.authorization = options.verify.authorization;
+    }
+    async interact(request) {
+        const { action, config, sessionID, versionID } = request;
+        return this.send(`state/user/${encodeURIComponent(sessionID)}/interact`, {
+            method: 'POST',
+            body: { action, config },
+            headers: {
+                authorization: this.authorization,
+                sessionID,
+                ...(versionID ? { versionID } : {}),
+            },
+            params: new URLSearchParams({ verbose: 'true' }),
+        });
+    }
+    async feedback() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated publishing
+    getPublishing() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated createTranscript
+    createTranscript() {
+        return Promise.reject(new Error('not implemented'));
+    }
+}
+exports.AuthRuntimeService = AuthRuntimeService;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.d.ts
+
+import type { BaseModels } from '@voiceflow/base-types';
+import type { RuntimeFeedbackRequest, RuntimeHttpRequest, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from './runtime.interface';
+export declare abstract class RuntimeService {
+    private readonly options;
+    private readonly fetch;
+    constructor(options: RuntimeOptions);
+    abstract getPublishing<T extends Record<string, unknown>>(request: {
+        versionID?: string;
+    }): Promise<T>;
+    abstract createTranscript(sessionID: string, metadata: {
+        os?: string;
+        user?: {
+            name?: string;
+            image?: string;
+        };
+        device?: string;
+        browser?: string;
+    }): Promise<BaseModels.Transcript.Model>;
+    abstract interact(request: RuntimeInteractRequest): Promise<Partial<RuntimeInteractResponse> & Pick<RuntimeInteractResponse, 'trace'>>;
+    abstract feedback(request: RuntimeFeedbackRequest): Promise<void>;
+    protected send<T>(path: string, args?: RuntimeHttpRequest): Promise<T>;
+}
+//# sourceMappingURL=runtime.service.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.js
+
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RuntimeService = void 0;
+const http_errors_1 = __importDefault(require("http-errors"));
+class RuntimeService {
+    constructor(options) {
+        this.options = options;
+        this.fetch = options.fetchPonyfill ?? globalThis.fetch?.bind(globalThis);
+        if (!this.fetch) {
+            throw new TypeError('fetch implementation was not provided and a global fetch was not available');
+        }
+    }
+    async send(path, args = {}) {
+        const url = new URL(path, this.options.url);
+        if (args.params)
+            url.search = args.params.toString();
+        const result = await this.fetch(url, {
+            method: args.method ?? 'GET',
+            body: args.body ? JSON.stringify(args.body) : undefined,
+            headers: {
+                'content-type': 'application/json',
+                ...(args.headers ?? {}),
+            },
+        });
+        const json = (await result.json().catch(() => null));
+        if (!result.ok) {
+            throw (0, http_errors_1.default)(result.status, result.statusText, json);
+        }
+        return json;
+    }
+}
+exports.RuntimeService = RuntimeService;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.prototype.d.ts
+
+import type { PrototypeVerify, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from '../runtime/runtime.interface';
+import { RuntimeService } from '../runtime/runtime.service';
+export declare class PrototypeRuntimeService extends RuntimeService {
+    private state;
+    private readonly versionID;
+    constructor(options: RuntimeOptions<PrototypeVerify>);
+    interact(request: RuntimeInteractRequest): Promise<RuntimeInteractResponse>;
+    feedback(): Promise<never>;
+    getPublishing(): Promise<never>;
+    createTranscript(): Promise<never>;
+}
+//# sourceMappingURL=runtime.service.prototype.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.prototype.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PrototypeRuntimeService = void 0;
+const runtime_service_1 = require("../runtime/runtime.service");
+class PrototypeRuntimeService extends runtime_service_1.RuntimeService {
+    constructor(options) {
+        super(options);
+        this.state = {
+            turn: {},
+            storage: {},
+            variables: {},
+        };
+        this.versionID = options.verify.versionID;
+    }
+    async interact(request) {
+        const { action, config, sessionID } = request;
+        const result = await this.send(`interact/${this.versionID}`, {
+            body: { state: this.state, request: action, config },
+            method: 'POST',
+            headers: { sessionID, platform: 'chat-prototype' },
+        });
+        this.state = result.state;
+        return result;
+    }
+    async feedback() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated publishing
+    getPublishing() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated createTranscript
+    createTranscript() {
+        return Promise.reject(new Error('not implemented'));
+    }
+}
+exports.PrototypeRuntimeService = PrototypeRuntimeService;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.public.d.ts
+
+import type { BaseModels } from '@voiceflow/base-types';
+import type { PublicVerify, RuntimeFeedbackRequest, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from '../runtime/runtime.interface';
+import { RuntimeService } from '../runtime/runtime.service';
+export declare class PublicRuntimeService extends RuntimeService {
+    private readonly projectID;
+    constructor(options: RuntimeOptions<PublicVerify>);
+    interact(request: RuntimeInteractRequest): Promise<Pick<RuntimeInteractResponse, 'trace'>>;
+    feedback(request: RuntimeFeedbackRequest): Promise<void>;
+    getPublishing<T extends Record<string, unknown>>(request: {
+        versionID?: string;
+    }): Promise<T>;
+    createTranscript(sessionID: string, metadata: {
+        os?: string;
+        device?: string;
+        browser?: string;
+    }): Promise<BaseModels.Transcript.Model>;
+}
+//# sourceMappingURL=runtime.service.public.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/runtime/runtime.service.public.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PublicRuntimeService = void 0;
+const runtime_service_1 = require("../runtime/runtime.service");
+class PublicRuntimeService extends runtime_service_1.RuntimeService {
+    constructor(options) {
+        super(options);
+        this.projectID = options.verify.projectID;
+    }
+    async interact(request) {
+        const { action, config, sessionID, versionID } = request;
+        return this.send(`public/${this.projectID}/state/user/${encodeURIComponent(sessionID)}/interact`, {
+            method: 'POST',
+            body: { action, config },
+            headers: {
+                ...(versionID && { versionID }),
+            },
+        });
+    }
+    async feedback(request) {
+        const { versionID, sessionID, ...body } = request;
+        await this.send(`feedback/${this.projectID}/user/${encodeURIComponent(sessionID)}`, {
+            method: 'POST',
+            body,
+            headers: {
+                ...(versionID && { versionID }),
+            },
+        });
+    }
+    async getPublishing(request) {
+        const { versionID } = request;
+        return this.send(`public/${this.projectID}/publishing`, {
+            method: 'GET',
+            headers: {
+                ...(versionID ? { versionID } : {}),
+            },
+        });
+    }
+    async createTranscript(sessionID, metadata) {
+        return this.send(`public/${this.projectID}/transcripts`, {
+            method: 'POST',
+            body: { ...metadata, sessionID },
+        });
+    }
+}
+exports.PublicRuntimeService = PublicRuntimeService;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/sdk/index.d.ts
+
+export * from './sdk.interface';
+export * from './sdk.service';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/sdk/index.js
+
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./sdk.interface"), exports);
+__exportStar(require("./sdk.service"), exports);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/sdk/sdk.interface.d.ts
+
+import type { RuntimeOptions } from '../runtime/runtime.interface';
+import type { TraceOptions } from '../trace/trace.interface';
+export type VoiceflowRuntimeOptions<T> = RuntimeOptions & TraceOptions<T>;
+//# sourceMappingURL=sdk.interface.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/sdk/sdk.interface.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/sdk/sdk.service.d.ts
+
+import type { RuntimeFeedbackRequest, RuntimeInteractRequest, RuntimeService } from '../runtime';
+import type { TraceDeclaration } from '../trace/trace.interface';
+import type { VoiceflowRuntimeOptions } from './sdk.interface';
+export declare class VoiceflowRuntime<T> {
+    private readonly runtime;
+    private readonly trace;
+    constructor(options: VoiceflowRuntimeOptions<T>);
+    registerStep(step: TraceDeclaration<T, any>): this;
+    interact(context: T, request: RuntimeInteractRequest): Promise<T>;
+    feedback(request: RuntimeFeedbackRequest): Promise<void>;
+    getPublishing<T extends Record<string, unknown>>(...options: Parameters<RuntimeService['getPublishing']>): Promise<T>;
+    createTranscript(...options: Parameters<RuntimeService['createTranscript']>): Promise<import("@voiceflow/base-types/build/cjs/models/transcripts").Model>;
+}
+//# sourceMappingURL=sdk.service.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/sdk/sdk.service.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.VoiceflowRuntime = void 0;
+const runtime_1 = require("../runtime");
+const trace_service_1 = require("../trace/trace.service");
+class VoiceflowRuntime {
+    constructor(options) {
+        this.trace = new trace_service_1.TraceService(options);
+        if ((0, runtime_1.isPrototypeRuntimeOptions)(options)) {
+            this.runtime = new runtime_1.PrototypeRuntimeService(options);
+        }
+        else if ((0, runtime_1.isAuthRuntimeOptions)(options)) {
+            this.runtime = new runtime_1.AuthRuntimeService(options);
+        }
+        else if ((0, runtime_1.isPublicRuntimeOptions)(options)) {
+            this.runtime = new runtime_1.PublicRuntimeService(options);
+        }
+        else {
+            throw new Error('invalid runtime options');
+        }
+    }
+    registerStep(step) {
+        this.trace.registerTrace(step);
+        return this;
+    }
+    async interact(context, request) {
+        const response = await this.runtime.interact(request);
+        return this.trace.processTrace(context, response);
+    }
+    async feedback(request) {
+        return this.runtime.feedback(request);
+    }
+    async getPublishing(...options) {
+        return this.runtime.getPublishing(...options);
+    }
+    async createTranscript(...options) {
+        return this.runtime.createTranscript(...options);
+    }
+}
+exports.VoiceflowRuntime = VoiceflowRuntime;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/card.component.d.ts
+
+import type { BaseNode } from '@voiceflow/base-types';
+export declare const CardTraceComponent: import("../trace.component").TraceComponentOverload<{
+    type: 'card';
+    payload: {
+        card: BaseNode.Card.Card;
+    };
+}>;
+//# sourceMappingURL=card.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/card.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CardTraceComponent = void 0;
+const trace_component_1 = require("../trace.component");
+exports.CardTraceComponent = (0, trace_component_1.createTraceComponent)('card');
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/cardV2.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface';
+export declare const CardV2TraceComponent: import("../trace.component").TraceComponentOverload<Trace.CardV2>;
+//# sourceMappingURL=cardV2.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/cardV2.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CardV2TraceComponent = void 0;
+const runtime_interface_1 = require("../../runtime/runtime.interface");
+const trace_component_1 = require("../trace.component");
+exports.CardV2TraceComponent = (0, trace_component_1.createTraceComponent)(runtime_interface_1.Trace.TraceType.CARD_V2);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/choice.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface';
+export declare const ChoiceTraceComponent: import("../trace.component").TraceComponentOverload<Trace.Choice>;
+//# sourceMappingURL=choice.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/choice.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChoiceTraceComponent = void 0;
+const runtime_interface_1 = require("../../runtime/runtime.interface");
+const trace_component_1 = require("../trace.component");
+exports.ChoiceTraceComponent = (0, trace_component_1.createTraceComponent)(runtime_interface_1.Trace.TraceType.CHOICE);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/end.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface';
+export declare const EndTraceComponent: import("../trace.component").TraceComponentOverload<Trace.End>;
+//# sourceMappingURL=end.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/end.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EndTraceComponent = void 0;
+const runtime_interface_1 = require("../../runtime/runtime.interface");
+const trace_component_1 = require("../trace.component");
+exports.EndTraceComponent = (0, trace_component_1.createTraceComponent)(runtime_interface_1.Trace.TraceType.END);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/index.d.ts
+
+export * from './card.component';
+export * from './cardV2.component';
+export * from './choice.component';
+export * from './end.component';
+export * from './speak.component';
+export * from './stream.component';
+export * from './text.component';
+export * from './visual.component';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/index.js
+
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./card.component"), exports);
+__exportStar(require("./cardV2.component"), exports);
+__exportStar(require("./choice.component"), exports);
+__exportStar(require("./end.component"), exports);
+__exportStar(require("./speak.component"), exports);
+__exportStar(require("./stream.component"), exports);
+__exportStar(require("./text.component"), exports);
+__exportStar(require("./visual.component"), exports);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/speak.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface';
+export declare const SpeakTraceComponent: import("../trace.component").TraceComponentOverload<Trace.Speak>;
+//# sourceMappingURL=speak.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/speak.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SpeakTraceComponent = void 0;
+const runtime_interface_1 = require("../../runtime/runtime.interface");
+const trace_component_1 = require("../trace.component");
+exports.SpeakTraceComponent = (0, trace_component_1.createTraceComponent)(runtime_interface_1.Trace.TraceType.SPEAK);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/stream.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface';
+export declare const StreamTraceComponent: import("../trace.component").TraceComponentOverload<Trace.Stream>;
+//# sourceMappingURL=stream.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/stream.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.StreamTraceComponent = void 0;
+const runtime_interface_1 = require("../../runtime/runtime.interface");
+const trace_component_1 = require("../trace.component");
+exports.StreamTraceComponent = (0, trace_component_1.createTraceComponent)(runtime_interface_1.Trace.TraceType.STREAM);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/text.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface';
+export declare const TextTraceComponent: import("../trace.component").TraceComponentOverload<Trace.Text>;
+//# sourceMappingURL=text.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/text.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TextTraceComponent = void 0;
+const runtime_interface_1 = require("../../runtime/runtime.interface");
+const trace_component_1 = require("../trace.component");
+exports.TextTraceComponent = (0, trace_component_1.createTraceComponent)(runtime_interface_1.Trace.TraceType.TEXT);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/visual.component.d.ts
+
+import type { BaseNode } from '@voiceflow/base-types';
+export declare const VisualTraceComponent: import("../trace.component").TraceComponentOverload<BaseNode.Visual.TraceFrame & {
+    payload: BaseNode.Visual.ImageStepData;
+}>;
+//# sourceMappingURL=visual.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/components/visual.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.VisualTraceComponent = void 0;
+const runtime_interface_1 = require("../../runtime/runtime.interface");
+const trace_component_1 = require("../trace.component");
+exports.VisualTraceComponent = (0, trace_component_1.createTraceComponent)(runtime_interface_1.Trace.TraceType.VISUAL);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/index.d.ts
+
+export * from './components';
+export * from './trace.component';
+export * from './trace.interface';
+export * from './trace.service';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/index.js
+
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./components"), exports);
+__exportStar(require("./trace.component"), exports);
+__exportStar(require("./trace.interface"), exports);
+__exportStar(require("./trace.service"), exports);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/trace.component.d.ts
+
+import type { Trace } from '../runtime/runtime.interface';
+import type { TraceAccumulator, TraceDeclaration } from './trace.interface';
+export interface TraceComponentOverload<T extends Trace.BaseTraceFrame> {
+    <Context>(declaration: TraceDeclaration<Context, T>): Required<TraceDeclaration<Context, T>>;
+    <Context>(handle: TraceAccumulator<Context, T>): Required<TraceDeclaration<Context, T>>;
+}
+export declare const createTraceComponent: <T extends Trace.BaseTraceFrame<any, import("@voiceflow/base-types/build/cjs/node/utils").BaseTraceFramePath<import("@voiceflow/base-types/build/cjs/node/utils").BaseEvent>>>(type: T['type']) => TraceComponentOverload<T>;
+//# sourceMappingURL=trace.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/trace.component.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createTraceComponent = void 0;
+const createTraceComponent = (type) => (handle) => {
+    if (typeof handle === 'function') {
+        return {
+            canHandle: (trace) => trace.type === type,
+            handle,
+        };
+    }
+    return handle;
+};
+exports.createTraceComponent = createTraceComponent;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/trace.interface.d.ts
+
+import type { Trace } from '../runtime/runtime.interface';
+export interface TraceOptions<T> {
+    traces?: TraceDeclaration<T, any>[];
+}
+export interface TraceDeclaration<Context, T extends Trace.BaseTraceFrame> {
+    canHandle: TraceCanHandle<T>;
+    handle: TraceAccumulator<Context, T>;
+}
+export type TraceCanHandle<T extends Trace.BaseTraceFrame> = (trace: T) => boolean;
+export interface TraceHandlerMeta<Context> {
+    context: Context;
+}
+export type TraceAccumulator<Context, T extends Trace.BaseTraceFrame> = (meta: TraceHandlerMeta<Context>, trace: T) => Context;
+//# sourceMappingURL=trace.interface.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/trace.interface.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/trace.service.d.ts
+
+import type { RuntimeInteractResponse } from '../runtime/runtime.interface';
+import type { TraceDeclaration, TraceOptions } from './trace.interface';
+export declare class TraceService<T = unknown> {
+    private readonly traces;
+    constructor(options?: TraceOptions<T>);
+    registerTrace(step: TraceDeclaration<T, any>): this;
+    registerTraces(steps: TraceDeclaration<T, any>[]): this;
+    processTrace(context: T, response: Pick<RuntimeInteractResponse, 'trace'>): Promise<T>;
+}
+//# sourceMappingURL=trace.service.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/cjs/trace/trace.service.js
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TraceService = void 0;
+class TraceService {
+    constructor(options = {}) {
+        this.traces = [];
+        this.registerTraces(options.traces ?? []);
+    }
+    registerTrace(step) {
+        this.traces.push(step);
+        return this;
+    }
+    registerTraces(steps) {
+        steps.forEach((step) => this.registerTrace(step));
+        return this;
+    }
+    async processTrace(context, response) {
+        const meta = { context };
+        for (const trace of response.trace) {
+            const step = this.traces.find((step) => step.canHandle(trace));
+            if (step) {
+                // eslint-disable-next-line no-await-in-loop
+                meta.context = await step.handle(meta, trace);
+            }
+        }
+        return meta.context;
+    }
+}
+exports.TraceService = TraceService;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/main.d.ts
+
+export * from './runtime/index.js';
+export * from './sdk/index.js';
+export * from './trace/index.js';
+//# sourceMappingURL=main.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/main.js
+
+export * from './runtime/index.js';
+export * from './sdk/index.js';
+export * from './trace/index.js';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/index.d.ts
+
+export * from './runtime.interface.js';
+export * from './runtime.service.js';
+export * from './runtime.service.auth.js';
+export * from './runtime.service.prototype.js';
+export * from './runtime.service.public.js';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/index.js
+
+export * from './runtime.interface.js';
+export * from './runtime.service.js';
+export * from './runtime.service.auth.js';
+export * from './runtime.service.prototype.js';
+export * from './runtime.service.public.js';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.interface.d.ts
+
+import { BaseRequest, Trace } from '@voiceflow/base-types';
+export { Trace } from '@voiceflow/base-types';
+type FetchFn = (...parameters: any[]) => Promise<any>;
+export interface RuntimeOptions<V = AuthVerify | PublicVerify | PrototypeVerify> {
+    url: string;
+    verify: V;
+    /**
+     * A ponyfill to use for `fetch()`.
+     * Defaults to the global `fetch()`.
+     */
+    fetchPonyfill?: FetchFn;
+}
+export interface AuthVerify {
+    authorization: string;
+}
+export interface PublicVerify {
+    projectID: string;
+}
+export interface PrototypeVerify {
+    projectID: string;
+    versionID: string;
+    prototype: true;
+}
+export type AnyVerify = Partial<AuthVerify & PublicVerify & PrototypeVerify>;
+export declare const isAuthRuntimeOptions: (options: RuntimeOptions<AnyVerify>) => options is RuntimeOptions<AuthVerify>;
+export declare const isPublicRuntimeOptions: (options: RuntimeOptions<AnyVerify>) => options is RuntimeOptions<PublicVerify>;
+export declare const isPrototypeRuntimeOptions: (options: RuntimeOptions<AnyVerify>) => options is RuntimeOptions<PrototypeVerify>;
+export interface RuntimeInteractRequest {
+    action: RuntimeAction;
+    sessionID: string;
+    versionID?: string;
+    config?: any;
+}
+export interface RuntimeFeedbackRequest {
+    name: string;
+    sessionID: string;
+    versionID?: string;
+    [key: string]: any;
+}
+export interface RuntimeInteractResponse {
+    state: RuntimeState;
+    request: RuntimeAction;
+    trace: Trace.AnyTrace[];
+}
+export type RuntimeAction = BaseRequest.TextRequest | BaseRequest.LaunchRequest | BaseRequest.IntentRequest | BaseRequest.ActionRequest | BaseRequest.GeneralRequest | BaseRequest.BaseRequest;
+export declare const isRuntimeAction: (value: unknown) => value is RuntimeAction;
+export interface IntentActionPayload {
+    query: string;
+    intent: {
+        name: string;
+    };
+    entities: {
+        name: string;
+        value: string;
+    }[];
+    confidence?: number;
+}
+export type IntentAction = BaseRequest.IntentRequest;
+export type ActionType = BaseRequest.RequestType;
+export declare const ActionType: typeof BaseRequest.RequestType;
+export declare const createIntentAction: (payload: BaseRequest.IntentRequestPayload) => BaseRequest.IntentRequest;
+export interface RuntimeState {
+    turn: Record<string, any>;
+    storage: Record<string, any>;
+    variables: Record<string, any>;
+}
+export declare const isRuntimeTraceType: (value: unknown) => value is Trace.TraceType;
+export declare const isRuntimeTrace: (value: unknown) => value is Trace.BaseTraceFrame<any, import("@voiceflow/base-types/build/cjs/node/utils").BaseTraceFramePath<import("@voiceflow/base-types/build/cjs/node/utils").BaseEvent>>;
+export interface RuntimeHttpRequest {
+    method?: string;
+    params?: URLSearchParams;
+    body?: any;
+    headers?: HeadersInit;
+}
+//# sourceMappingURL=runtime.interface.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.interface.js
+
+import { BaseRequest, Trace } from '@voiceflow/base-types';
+export { Trace } from '@voiceflow/base-types';
+export const isAuthRuntimeOptions = (options) => {
+    return !!options?.verify?.authorization;
+};
+export const isPublicRuntimeOptions = (options) => {
+    return typeof options?.verify?.projectID === 'string';
+};
+export const isPrototypeRuntimeOptions = (options) => {
+    return (options?.verify?.prototype === true &&
+        typeof options?.verify?.versionID === 'string' &&
+        typeof options?.verify?.projectID === 'string');
+};
+export const isRuntimeAction = (value) => typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'type');
+export const ActionType = BaseRequest.RequestType;
+export const createIntentAction = (payload) => ({
+    type: ActionType.INTENT,
+    payload,
+});
+export const isRuntimeTraceType = (value) => typeof value === 'string' && Object.values(Trace.TraceType).includes(value);
+export const isRuntimeTrace = (value) => typeof value === 'object' &&
+    Object.prototype.hasOwnProperty.call(value, 'type') &&
+    isRuntimeTraceType(value.type);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.auth.d.ts
+
+import type { AuthVerify, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from '../runtime/runtime.interface.js';
+import { RuntimeService } from '../runtime/runtime.service.js';
+export declare class AuthRuntimeService extends RuntimeService {
+    private readonly authorization;
+    constructor(options: RuntimeOptions<AuthVerify>);
+    interact(request: RuntimeInteractRequest): Promise<RuntimeInteractResponse>;
+    feedback(): Promise<never>;
+    getPublishing(): Promise<never>;
+    createTranscript(): Promise<never>;
+}
+//# sourceMappingURL=runtime.service.auth.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.auth.js
+
+import { RuntimeService } from '../runtime/runtime.service.js';
+export class AuthRuntimeService extends RuntimeService {
+    constructor(options) {
+        super(options);
+        this.authorization = options.verify.authorization;
+    }
+    async interact(request) {
+        const { action, config, sessionID, versionID } = request;
+        return this.send(`state/user/${encodeURIComponent(sessionID)}/interact`, {
+            method: 'POST',
+            body: { action, config },
+            headers: {
+                authorization: this.authorization,
+                sessionID,
+                ...(versionID ? { versionID } : {}),
+            },
+            params: new URLSearchParams({ verbose: 'true' }),
+        });
+    }
+    async feedback() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated publishing
+    getPublishing() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated createTranscript
+    createTranscript() {
+        return Promise.reject(new Error('not implemented'));
+    }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.d.ts
+
+import type { BaseModels } from '@voiceflow/base-types';
+import type { RuntimeFeedbackRequest, RuntimeHttpRequest, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from './runtime.interface.js';
+export declare abstract class RuntimeService {
+    private readonly options;
+    private readonly fetch;
+    constructor(options: RuntimeOptions);
+    abstract getPublishing<T extends Record<string, unknown>>(request: {
+        versionID?: string;
+    }): Promise<T>;
+    abstract createTranscript(sessionID: string, metadata: {
+        os?: string;
+        user?: {
+            name?: string;
+            image?: string;
+        };
+        device?: string;
+        browser?: string;
+    }): Promise<BaseModels.Transcript.Model>;
+    abstract interact(request: RuntimeInteractRequest): Promise<Partial<RuntimeInteractResponse> & Pick<RuntimeInteractResponse, 'trace'>>;
+    abstract feedback(request: RuntimeFeedbackRequest): Promise<void>;
+    protected send<T>(path: string, args?: RuntimeHttpRequest): Promise<T>;
+}
+//# sourceMappingURL=runtime.service.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.js
+
+import createHTTPError from 'http-errors';
+export class RuntimeService {
+    constructor(options) {
+        this.options = options;
+        this.fetch = options.fetchPonyfill ?? globalThis.fetch?.bind(globalThis);
+        if (!this.fetch) {
+            throw new TypeError('fetch implementation was not provided and a global fetch was not available');
+        }
+    }
+    async send(path, args = {}) {
+        const url = new URL(path, this.options.url);
+        if (args.params)
+            url.search = args.params.toString();
+        const result = await this.fetch(url, {
+            method: args.method ?? 'GET',
+            body: args.body ? JSON.stringify(args.body) : undefined,
+            headers: {
+                'content-type': 'application/json',
+                ...(args.headers ?? {}),
+            },
+        });
+        const json = (await result.json().catch(() => null));
+        if (!result.ok) {
+            throw createHTTPError(result.status, result.statusText, json);
+        }
+        return json;
+    }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.prototype.d.ts
+
+import type { PrototypeVerify, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from '../runtime/runtime.interface.js';
+import { RuntimeService } from '../runtime/runtime.service.js';
+export declare class PrototypeRuntimeService extends RuntimeService {
+    private state;
+    private readonly versionID;
+    constructor(options: RuntimeOptions<PrototypeVerify>);
+    interact(request: RuntimeInteractRequest): Promise<RuntimeInteractResponse>;
+    feedback(): Promise<never>;
+    getPublishing(): Promise<never>;
+    createTranscript(): Promise<never>;
+}
+//# sourceMappingURL=runtime.service.prototype.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.prototype.js
+
+import { RuntimeService } from '../runtime/runtime.service.js';
+export class PrototypeRuntimeService extends RuntimeService {
+    constructor(options) {
+        super(options);
+        this.state = {
+            turn: {},
+            storage: {},
+            variables: {},
+        };
+        this.versionID = options.verify.versionID;
+    }
+    async interact(request) {
+        const { action, config, sessionID } = request;
+        const result = await this.send(`interact/${this.versionID}`, {
+            body: { state: this.state, request: action, config },
+            method: 'POST',
+            headers: { sessionID, platform: 'chat-prototype' },
+        });
+        this.state = result.state;
+        return result;
+    }
+    async feedback() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated publishing
+    getPublishing() {
+        return Promise.reject(new Error('not implemented'));
+    }
+    // TODO: expose authenticated createTranscript
+    createTranscript() {
+        return Promise.reject(new Error('not implemented'));
+    }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.public.d.ts
+
+import type { BaseModels } from '@voiceflow/base-types';
+import type { PublicVerify, RuntimeFeedbackRequest, RuntimeInteractRequest, RuntimeInteractResponse, RuntimeOptions } from '../runtime/runtime.interface.js';
+import { RuntimeService } from '../runtime/runtime.service.js';
+export declare class PublicRuntimeService extends RuntimeService {
+    private readonly projectID;
+    constructor(options: RuntimeOptions<PublicVerify>);
+    interact(request: RuntimeInteractRequest): Promise<Pick<RuntimeInteractResponse, 'trace'>>;
+    feedback(request: RuntimeFeedbackRequest): Promise<void>;
+    getPublishing<T extends Record<string, unknown>>(request: {
+        versionID?: string;
+    }): Promise<T>;
+    createTranscript(sessionID: string, metadata: {
+        os?: string;
+        device?: string;
+        browser?: string;
+    }): Promise<BaseModels.Transcript.Model>;
+}
+//# sourceMappingURL=runtime.service.public.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/runtime/runtime.service.public.js
+
+import { RuntimeService } from '../runtime/runtime.service.js';
+export class PublicRuntimeService extends RuntimeService {
+    constructor(options) {
+        super(options);
+        this.projectID = options.verify.projectID;
+    }
+    async interact(request) {
+        const { action, config, sessionID, versionID } = request;
+        return this.send(`public/${this.projectID}/state/user/${encodeURIComponent(sessionID)}/interact`, {
+            method: 'POST',
+            body: { action, config },
+            headers: {
+                ...(versionID && { versionID }),
+            },
+        });
+    }
+    async feedback(request) {
+        const { versionID, sessionID, ...body } = request;
+        await this.send(`feedback/${this.projectID}/user/${encodeURIComponent(sessionID)}`, {
+            method: 'POST',
+            body,
+            headers: {
+                ...(versionID && { versionID }),
+            },
+        });
+    }
+    async getPublishing(request) {
+        const { versionID } = request;
+        return this.send(`public/${this.projectID}/publishing`, {
+            method: 'GET',
+            headers: {
+                ...(versionID ? { versionID } : {}),
+            },
+        });
+    }
+    async createTranscript(sessionID, metadata) {
+        return this.send(`public/${this.projectID}/transcripts`, {
+            method: 'POST',
+            body: { ...metadata, sessionID },
+        });
+    }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/sdk/index.d.ts
+
+export * from './sdk.interface.js';
+export * from './sdk.service.js';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/sdk/index.js
+
+export * from './sdk.interface.js';
+export * from './sdk.service.js';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/sdk/sdk.interface.d.ts
+
+import type { RuntimeOptions } from '../runtime/runtime.interface.js';
+import type { TraceOptions } from '../trace/trace.interface.js';
+export type VoiceflowRuntimeOptions<T> = RuntimeOptions & TraceOptions<T>;
+//# sourceMappingURL=sdk.interface.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/sdk/sdk.interface.js
+
+export {};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/sdk/sdk.service.d.ts
+
+import type { RuntimeFeedbackRequest, RuntimeInteractRequest, RuntimeService } from '../runtime/index.js';
+import type { TraceDeclaration } from '../trace/trace.interface.js';
+import type { VoiceflowRuntimeOptions } from './sdk.interface.js';
+export declare class VoiceflowRuntime<T> {
+    private readonly runtime;
+    private readonly trace;
+    constructor(options: VoiceflowRuntimeOptions<T>);
+    registerStep(step: TraceDeclaration<T, any>): this;
+    interact(context: T, request: RuntimeInteractRequest): Promise<T>;
+    feedback(request: RuntimeFeedbackRequest): Promise<void>;
+    getPublishing<T extends Record<string, unknown>>(...options: Parameters<RuntimeService['getPublishing']>): Promise<T>;
+    createTranscript(...options: Parameters<RuntimeService['createTranscript']>): Promise<import("@voiceflow/base-types/build/cjs/models/transcripts").Model>;
+}
+//# sourceMappingURL=sdk.service.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/sdk/sdk.service.js
+
+import { AuthRuntimeService, isAuthRuntimeOptions, isPrototypeRuntimeOptions, isPublicRuntimeOptions, PrototypeRuntimeService, PublicRuntimeService, } from '../runtime/index.js';
+import { TraceService } from '../trace/trace.service.js';
+export class VoiceflowRuntime {
+    constructor(options) {
+        this.trace = new TraceService(options);
+        if (isPrototypeRuntimeOptions(options)) {
+            this.runtime = new PrototypeRuntimeService(options);
+        }
+        else if (isAuthRuntimeOptions(options)) {
+            this.runtime = new AuthRuntimeService(options);
+        }
+        else if (isPublicRuntimeOptions(options)) {
+            this.runtime = new PublicRuntimeService(options);
+        }
+        else {
+            throw new Error('invalid runtime options');
+        }
+    }
+    registerStep(step) {
+        this.trace.registerTrace(step);
+        return this;
+    }
+    async interact(context, request) {
+        const response = await this.runtime.interact(request);
+        return this.trace.processTrace(context, response);
+    }
+    async feedback(request) {
+        return this.runtime.feedback(request);
+    }
+    async getPublishing(...options) {
+        return this.runtime.getPublishing(...options);
+    }
+    async createTranscript(...options) {
+        return this.runtime.createTranscript(...options);
+    }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/card.component.d.ts
+
+import type { BaseNode } from '@voiceflow/base-types';
+export declare const CardTraceComponent: import("../trace.component.js").TraceComponentOverload<{
+    type: 'card';
+    payload: {
+        card: BaseNode.Card.Card;
+    };
+}>;
+//# sourceMappingURL=card.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/card.component.js
+
+import { createTraceComponent } from '../trace.component.js';
+export const CardTraceComponent = createTraceComponent('card');
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/cardV2.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface.js';
+export declare const CardV2TraceComponent: import("../trace.component.js").TraceComponentOverload<Trace.CardV2>;
+//# sourceMappingURL=cardV2.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/cardV2.component.js
+
+import { Trace } from '../../runtime/runtime.interface.js';
+import { createTraceComponent } from '../trace.component.js';
+export const CardV2TraceComponent = createTraceComponent(Trace.TraceType.CARD_V2);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/choice.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface.js';
+export declare const ChoiceTraceComponent: import("../trace.component.js").TraceComponentOverload<Trace.Choice>;
+//# sourceMappingURL=choice.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/choice.component.js
+
+import { Trace } from '../../runtime/runtime.interface.js';
+import { createTraceComponent } from '../trace.component.js';
+export const ChoiceTraceComponent = createTraceComponent(Trace.TraceType.CHOICE);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/end.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface.js';
+export declare const EndTraceComponent: import("../trace.component.js").TraceComponentOverload<Trace.End>;
+//# sourceMappingURL=end.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/end.component.js
+
+import { Trace } from '../../runtime/runtime.interface.js';
+import { createTraceComponent } from '../trace.component.js';
+export const EndTraceComponent = createTraceComponent(Trace.TraceType.END);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/index.d.ts
+
+export * from './card.component.js';
+export * from './cardV2.component.js';
+export * from './choice.component.js';
+export * from './end.component.js';
+export * from './speak.component.js';
+export * from './stream.component.js';
+export * from './text.component.js';
+export * from './visual.component.js';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/index.js
+
+export * from './card.component.js';
+export * from './cardV2.component.js';
+export * from './choice.component.js';
+export * from './end.component.js';
+export * from './speak.component.js';
+export * from './stream.component.js';
+export * from './text.component.js';
+export * from './visual.component.js';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/speak.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface.js';
+export declare const SpeakTraceComponent: import("../trace.component.js").TraceComponentOverload<Trace.Speak>;
+//# sourceMappingURL=speak.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/speak.component.js
+
+import { Trace } from '../../runtime/runtime.interface.js';
+import { createTraceComponent } from '../trace.component.js';
+export const SpeakTraceComponent = createTraceComponent(Trace.TraceType.SPEAK);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/stream.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface.js';
+export declare const StreamTraceComponent: import("../trace.component.js").TraceComponentOverload<Trace.Stream>;
+//# sourceMappingURL=stream.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/stream.component.js
+
+import { Trace } from '../../runtime/runtime.interface.js';
+import { createTraceComponent } from '../trace.component.js';
+export const StreamTraceComponent = createTraceComponent(Trace.TraceType.STREAM);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/text.component.d.ts
+
+import { Trace } from '../../runtime/runtime.interface.js';
+export declare const TextTraceComponent: import("../trace.component.js").TraceComponentOverload<Trace.Text>;
+//# sourceMappingURL=text.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/text.component.js
+
+import { Trace } from '../../runtime/runtime.interface.js';
+import { createTraceComponent } from '../trace.component.js';
+export const TextTraceComponent = createTraceComponent(Trace.TraceType.TEXT);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/visual.component.d.ts
+
+import type { BaseNode } from '@voiceflow/base-types';
+export declare const VisualTraceComponent: import("../trace.component.js").TraceComponentOverload<BaseNode.Visual.TraceFrame & {
+    payload: BaseNode.Visual.ImageStepData;
+}>;
+//# sourceMappingURL=visual.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/components/visual.component.js
+
+import { Trace } from '../../runtime/runtime.interface.js';
+import { createTraceComponent } from '../trace.component.js';
+export const VisualTraceComponent = createTraceComponent(Trace.TraceType.VISUAL);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/index.d.ts
+
+export * from './components/index.js';
+export * from './trace.component.js';
+export * from './trace.interface.js';
+export * from './trace.service.js';
+//# sourceMappingURL=index.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/index.js
+
+export * from './components/index.js';
+export * from './trace.component.js';
+export * from './trace.interface.js';
+export * from './trace.service.js';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/trace.component.d.ts
+
+import type { Trace } from '../runtime/runtime.interface.js';
+import type { TraceAccumulator, TraceDeclaration } from './trace.interface.js';
+export interface TraceComponentOverload<T extends Trace.BaseTraceFrame> {
+    <Context>(declaration: TraceDeclaration<Context, T>): Required<TraceDeclaration<Context, T>>;
+    <Context>(handle: TraceAccumulator<Context, T>): Required<TraceDeclaration<Context, T>>;
+}
+export declare const createTraceComponent: <T extends Trace.BaseTraceFrame<any, import("@voiceflow/base-types/build/cjs/node/utils").BaseTraceFramePath<import("@voiceflow/base-types/build/cjs/node/utils").BaseEvent>>>(type: T['type']) => TraceComponentOverload<T>;
+//# sourceMappingURL=trace.component.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/trace.component.js
+
+export const createTraceComponent = (type) => (handle) => {
+    if (typeof handle === 'function') {
+        return {
+            canHandle: (trace) => trace.type === type,
+            handle,
+        };
+    }
+    return handle;
+};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/trace.interface.d.ts
+
+import type { Trace } from '../runtime/runtime.interface.js';
+export interface TraceOptions<T> {
+    traces?: TraceDeclaration<T, any>[];
+}
+export interface TraceDeclaration<Context, T extends Trace.BaseTraceFrame> {
+    canHandle: TraceCanHandle<T>;
+    handle: TraceAccumulator<Context, T>;
+}
+export type TraceCanHandle<T extends Trace.BaseTraceFrame> = (trace: T) => boolean;
+export interface TraceHandlerMeta<Context> {
+    context: Context;
+}
+export type TraceAccumulator<Context, T extends Trace.BaseTraceFrame> = (meta: TraceHandlerMeta<Context>, trace: T) => Context;
+//# sourceMappingURL=trace.interface.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/trace.interface.js
+
+export {};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/trace.service.d.ts
+
+import type { RuntimeInteractResponse } from '../runtime/runtime.interface.js';
+import type { TraceDeclaration, TraceOptions } from './trace.interface.js';
+export declare class TraceService<T = unknown> {
+    private readonly traces;
+    constructor(options?: TraceOptions<T>);
+    registerTrace(step: TraceDeclaration<T, any>): this;
+    registerTraces(steps: TraceDeclaration<T, any>[]): this;
+    processTrace(context: T, response: Pick<RuntimeInteractResponse, 'trace'>): Promise<T>;
+}
+//# sourceMappingURL=trace.service.d.ts.map
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/build/esm/trace/trace.service.js
+
+export class TraceService {
+    constructor(options = {}) {
+        this.traces = [];
+        this.registerTraces(options.traces ?? []);
+    }
+    registerTrace(step) {
+        this.traces.push(step);
+        return this;
+    }
+    registerTraces(steps) {
+        steps.forEach((step) => this.registerTrace(step));
+        return this;
+    }
+    async processTrace(context, response) {
+        const meta = { context };
+        for (const trace of response.trace) {
+            const step = this.traces.find((step) => step.canHandle(trace));
+            if (step) {
+                // eslint-disable-next-line no-await-in-loop
+                meta.context = await step.handle(meta, trace);
+            }
+        }
+        return meta.context;
+    }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/main.ts
+
+export * from './runtime';
+export * from './sdk';
+export * from './trace';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/runtime/index.ts
+
+export * from './runtime.interface';
+export * from './runtime.service';
+export * from './runtime.service.auth';
+export * from './runtime.service.prototype';
+export * from './runtime.service.public';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/runtime/runtime.interface.ts
+
+import { BaseRequest, Trace } from '@voiceflow/base-types';
+
+export { Trace } from '@voiceflow/base-types';
+
+// Super broad type so that differing fetch types (ex. builtin, node-fetch, etc.) don't conflict with it
+type FetchFn = (...parameters: any[]) => Promise<any>;
+
+export interface RuntimeOptions<V = AuthVerify | PublicVerify | PrototypeVerify> {
+  url: string;
+  verify: V;
+
+  /**
+   * A ponyfill to use for `fetch()`.
+   * Defaults to the global `fetch()`.
+   */
+  fetchPonyfill?: FetchFn;
+}
+
+export interface AuthVerify {
+  authorization: string;
+}
+
+export interface PublicVerify {
+  projectID: string;
+}
+
+export interface PrototypeVerify {
+  projectID: string;
+  versionID: string;
+  prototype: true;
+}
+
+export type AnyVerify = Partial<AuthVerify & PublicVerify & PrototypeVerify>;
+
+export const isAuthRuntimeOptions = (options: RuntimeOptions<AnyVerify>): options is RuntimeOptions<AuthVerify> => {
+  return !!options?.verify?.authorization;
+};
+
+export const isPublicRuntimeOptions = (options: RuntimeOptions<AnyVerify>): options is RuntimeOptions<PublicVerify> => {
+  return typeof options?.verify?.projectID === 'string';
+};
+
+export const isPrototypeRuntimeOptions = (
+  options: RuntimeOptions<AnyVerify>
+): options is RuntimeOptions<PrototypeVerify> => {
+  return (
+    options?.verify?.prototype === true &&
+    typeof options?.verify?.versionID === 'string' &&
+    typeof options?.verify?.projectID === 'string'
+  );
+};
+
+export interface RuntimeInteractRequest {
+  action: RuntimeAction;
+  sessionID: string;
+  versionID?: string;
+  config?: any;
+}
+
+export interface RuntimeFeedbackRequest {
+  name: string;
+  sessionID: string;
+  versionID?: string;
+
+  [key: string]: any;
+}
+
+export interface RuntimeInteractResponse {
+  state: RuntimeState;
+  request: RuntimeAction;
+  trace: Trace.AnyTrace[];
+}
+
+export type RuntimeAction =
+  | BaseRequest.TextRequest
+  | BaseRequest.LaunchRequest
+  | BaseRequest.IntentRequest
+  | BaseRequest.ActionRequest
+  | BaseRequest.GeneralRequest
+  | BaseRequest.BaseRequest;
+
+export const isRuntimeAction = (value: unknown): value is RuntimeAction =>
+  typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'type');
+
+export interface IntentActionPayload {
+  query: string;
+  intent: { name: string };
+  entities: { name: string; value: string }[];
+  confidence?: number;
+}
+
+export type IntentAction = BaseRequest.IntentRequest;
+export type ActionType = BaseRequest.RequestType;
+export const ActionType = BaseRequest.RequestType;
+
+export const createIntentAction = (payload: BaseRequest.IntentRequestPayload): BaseRequest.IntentRequest => ({
+  type: ActionType.INTENT,
+  payload,
+});
+
+export interface RuntimeState {
+  turn: Record<string, any>;
+  storage: Record<string, any>;
+  variables: Record<string, any>;
+}
+
+export const isRuntimeTraceType = (value: unknown): value is Trace.TraceType =>
+  typeof value === 'string' && Object.values<string>(Trace.TraceType).includes(value);
+
+export const isRuntimeTrace = (value: unknown): value is Trace.BaseTraceFrame =>
+  typeof value === 'object' &&
+  Object.prototype.hasOwnProperty.call(value, 'type') &&
+  isRuntimeTraceType((value as any).type);
+
+export interface RuntimeHttpRequest {
+  method?: string;
+  params?: URLSearchParams;
+  body?: any;
+  headers?: HeadersInit;
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/runtime/runtime.service.auth.ts
+
+import type {
+  AuthVerify,
+  RuntimeInteractRequest,
+  RuntimeInteractResponse,
+  RuntimeOptions,
+} from '@/runtime/runtime.interface';
+import { RuntimeService } from '@/runtime/runtime.service';
+
+export class AuthRuntimeService extends RuntimeService {
+  private readonly authorization: string;
+
+  public constructor(options: RuntimeOptions<AuthVerify>) {
+    super(options);
+
+    this.authorization = options.verify.authorization;
+  }
+
+  public async interact(request: RuntimeInteractRequest): Promise<RuntimeInteractResponse> {
+    const { action, config, sessionID, versionID } = request;
+
+    return this.send<RuntimeInteractResponse>(`state/user/${encodeURIComponent(sessionID)}/interact`, {
+      method: 'POST',
+      body: { action, config },
+      headers: {
+        authorization: this.authorization,
+        sessionID,
+        ...(versionID ? { versionID } : {}),
+      },
+      params: new URLSearchParams({ verbose: 'true' }),
+    });
+  }
+
+  public async feedback() {
+    return Promise.reject(new Error('not implemented'));
+  }
+
+  // TODO: expose authenticated publishing
+  public getPublishing() {
+    return Promise.reject(new Error('not implemented'));
+  }
+
+  // TODO: expose authenticated createTranscript
+  public createTranscript() {
+    return Promise.reject(new Error('not implemented'));
+  }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/runtime/runtime.service.prototype.ts
+
+import type {
+  PrototypeVerify,
+  RuntimeInteractRequest,
+  RuntimeInteractResponse,
+  RuntimeOptions,
+  RuntimeState,
+} from '@/runtime/runtime.interface';
+import { RuntimeService } from '@/runtime/runtime.service';
+
+export class PrototypeRuntimeService extends RuntimeService {
+  private state: RuntimeState = {
+    turn: {},
+    storage: {},
+    variables: {},
+  };
+
+  private readonly versionID: string;
+
+  public constructor(options: RuntimeOptions<PrototypeVerify>) {
+    super(options);
+
+    this.versionID = options.verify.versionID;
+  }
+
+  public async interact(request: RuntimeInteractRequest): Promise<RuntimeInteractResponse> {
+    const { action, config, sessionID } = request;
+
+    const result = await this.send<RuntimeInteractResponse>(`interact/${this.versionID}`, {
+      body: { state: this.state, request: action, config },
+      method: 'POST',
+      headers: { sessionID, platform: 'chat-prototype' },
+    });
+
+    this.state = result.state;
+
+    return result;
+  }
+
+  public async feedback() {
+    return Promise.reject(new Error('not implemented'));
+  }
+
+  // TODO: expose authenticated publishing
+  public getPublishing() {
+    return Promise.reject(new Error('not implemented'));
+  }
+
+  // TODO: expose authenticated createTranscript
+  public createTranscript() {
+    return Promise.reject(new Error('not implemented'));
+  }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/runtime/runtime.service.public.ts
+
+import type { BaseModels } from '@voiceflow/base-types';
+
+import type {
+  PublicVerify,
+  RuntimeFeedbackRequest,
+  RuntimeInteractRequest,
+  RuntimeInteractResponse,
+  RuntimeOptions,
+} from '@/runtime/runtime.interface';
+import { RuntimeService } from '@/runtime/runtime.service';
+
+export class PublicRuntimeService extends RuntimeService {
+  private readonly projectID: string;
+
+  public constructor(options: RuntimeOptions<PublicVerify>) {
+    super(options);
+
+    this.projectID = options.verify.projectID;
+  }
+
+  public async interact(request: RuntimeInteractRequest): Promise<Pick<RuntimeInteractResponse, 'trace'>> {
+    const { action, config, sessionID, versionID } = request;
+
+    return this.send<Pick<RuntimeInteractResponse, 'trace'>>(
+      `public/${this.projectID}/state/user/${encodeURIComponent(sessionID)}/interact`,
+      {
+        method: 'POST',
+        body: { action, config },
+        headers: {
+          ...(versionID && { versionID }),
+        },
+      }
+    );
+  }
+
+  public async feedback(request: RuntimeFeedbackRequest): Promise<void> {
+    const { versionID, sessionID, ...body } = request;
+
+    await this.send(`feedback/${this.projectID}/user/${encodeURIComponent(sessionID)}`, {
+      method: 'POST',
+      body,
+      headers: {
+        ...(versionID && { versionID }),
+      },
+    });
+  }
+
+  public async getPublishing<T extends Record<string, unknown>>(request: { versionID?: string }): Promise<T> {
+    const { versionID } = request;
+
+    return this.send<T>(`public/${this.projectID}/publishing`, {
+      method: 'GET',
+      headers: {
+        ...(versionID ? { versionID } : {}),
+      },
+    });
+  }
+
+  public async createTranscript(sessionID: string, metadata: { os?: string; device?: string; browser?: string }) {
+    return this.send<BaseModels.Transcript.Model>(`public/${this.projectID}/transcripts`, {
+      method: 'POST',
+      body: { ...metadata, sessionID },
+    });
+  }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/runtime/runtime.service.ts
+
+import type { BaseModels } from '@voiceflow/base-types';
+import createHTTPError from 'http-errors';
+
+import type {
+  RuntimeFeedbackRequest,
+  RuntimeHttpRequest,
+  RuntimeInteractRequest,
+  RuntimeInteractResponse,
+  RuntimeOptions,
+} from './runtime.interface';
+
+export abstract class RuntimeService {
+  private readonly fetch: typeof globalThis.fetch;
+
+  public constructor(private readonly options: RuntimeOptions) {
+    this.fetch = options.fetchPonyfill ?? globalThis.fetch?.bind(globalThis);
+    if (!this.fetch) {
+      throw new TypeError('fetch implementation was not provided and a global fetch was not available');
+    }
+  }
+
+  public abstract getPublishing<T extends Record<string, unknown>>(request: { versionID?: string }): Promise<T>;
+
+  public abstract createTranscript(
+    sessionID: string,
+    metadata: {
+      os?: string;
+      user?: {
+        name?: string;
+        image?: string;
+      };
+      device?: string;
+      browser?: string;
+    }
+  ): Promise<BaseModels.Transcript.Model>;
+
+  public abstract interact(
+    request: RuntimeInteractRequest
+  ): Promise<Partial<RuntimeInteractResponse> & Pick<RuntimeInteractResponse, 'trace'>>;
+
+  public abstract feedback(request: RuntimeFeedbackRequest): Promise<void>;
+
+  protected async send<T>(path: string, args: RuntimeHttpRequest = {}): Promise<T> {
+    const url = new URL(path, this.options.url);
+    if (args.params) url.search = args.params.toString();
+
+    const result = await this.fetch(url, {
+      method: args.method ?? 'GET',
+      body: args.body ? JSON.stringify(args.body) : undefined,
+      headers: {
+        'content-type': 'application/json',
+        ...(args.headers ?? {}),
+      },
+    });
+
+    const json = (await result.json().catch(() => null)) as any;
+    if (!result.ok) {
+      throw createHTTPError(result.status, result.statusText, json);
+    }
+
+    return json;
+  }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/sdk/index.ts
+
+export * from './sdk.interface';
+export * from './sdk.service';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/sdk/sdk.interface.ts
+
+import type { RuntimeOptions } from '@/runtime/runtime.interface';
+import type { TraceOptions } from '@/trace/trace.interface';
+
+export type VoiceflowRuntimeOptions<T> = RuntimeOptions & TraceOptions<T>;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/sdk/sdk.service.ts
+
+import type { RuntimeFeedbackRequest, RuntimeInteractRequest, RuntimeService } from '@/runtime';
+import {
+  AuthRuntimeService,
+  isAuthRuntimeOptions,
+  isPrototypeRuntimeOptions,
+  isPublicRuntimeOptions,
+  PrototypeRuntimeService,
+  PublicRuntimeService,
+} from '@/runtime';
+import type { TraceDeclaration } from '@/trace/trace.interface';
+import { TraceService } from '@/trace/trace.service';
+
+import type { VoiceflowRuntimeOptions } from './sdk.interface';
+
+export class VoiceflowRuntime<T> {
+  private readonly runtime: RuntimeService;
+
+  private readonly trace: TraceService<T>;
+
+  public constructor(options: VoiceflowRuntimeOptions<T>) {
+    this.trace = new TraceService(options);
+
+    if (isPrototypeRuntimeOptions(options)) {
+      this.runtime = new PrototypeRuntimeService(options);
+    } else if (isAuthRuntimeOptions(options)) {
+      this.runtime = new AuthRuntimeService(options);
+    } else if (isPublicRuntimeOptions(options)) {
+      this.runtime = new PublicRuntimeService(options);
+    } else {
+      throw new Error('invalid runtime options');
+    }
+  }
+
+  public registerStep(step: TraceDeclaration<T, any>) {
+    this.trace.registerTrace(step);
+    return this;
+  }
+
+  public async interact(context: T, request: RuntimeInteractRequest): Promise<T> {
+    const response = await this.runtime.interact(request);
+    return this.trace.processTrace(context, response);
+  }
+
+  public async feedback(request: RuntimeFeedbackRequest) {
+    return this.runtime.feedback(request);
+  }
+
+  public async getPublishing<T extends Record<string, unknown>>(
+    ...options: Parameters<RuntimeService['getPublishing']>
+  ) {
+    return this.runtime.getPublishing<T>(...options);
+  }
+
+  public async createTranscript(...options: Parameters<RuntimeService['createTranscript']>) {
+    return this.runtime.createTranscript(...options);
+  }
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/card.component.ts
+
+import type { BaseNode } from '@voiceflow/base-types';
+
+import { createTraceComponent } from '../trace.component';
+
+export const CardTraceComponent = createTraceComponent<{ type: 'card'; payload: { card: BaseNode.Card.Card } }>('card');
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/cardV2.component.ts
+
+import { Trace } from '@/runtime/runtime.interface';
+
+import { createTraceComponent } from '../trace.component';
+
+export const CardV2TraceComponent = createTraceComponent<Trace.CardV2>(Trace.TraceType.CARD_V2);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/choice.component.ts
+
+import { Trace } from '@/runtime/runtime.interface';
+
+import { createTraceComponent } from '../trace.component';
+
+export const ChoiceTraceComponent = createTraceComponent<Trace.Choice>(Trace.TraceType.CHOICE);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/end.component.ts
+
+import { Trace } from '@/runtime/runtime.interface';
+
+import { createTraceComponent } from '../trace.component';
+
+export const EndTraceComponent = createTraceComponent<Trace.End>(Trace.TraceType.END);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/index.ts
+
+export * from './card.component';
+export * from './cardV2.component';
+export * from './choice.component';
+export * from './end.component';
+export * from './speak.component';
+export * from './stream.component';
+export * from './text.component';
+export * from './visual.component';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/speak.component.ts
+
+import { Trace } from '@/runtime/runtime.interface';
+
+import { createTraceComponent } from '../trace.component';
+
+export const SpeakTraceComponent = createTraceComponent<Trace.Speak>(Trace.TraceType.SPEAK);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/stream.component.ts
+
+import { Trace } from '@/runtime/runtime.interface';
+
+import { createTraceComponent } from '../trace.component';
+
+export const StreamTraceComponent = createTraceComponent<Trace.Stream>(Trace.TraceType.STREAM);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/text.component.ts
+
+import { Trace } from '@/runtime/runtime.interface';
+
+import { createTraceComponent } from '../trace.component';
+
+export const TextTraceComponent = createTraceComponent<Trace.Text>(Trace.TraceType.TEXT);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/components/visual.component.ts
+
+import type { BaseNode } from '@voiceflow/base-types';
+
+import { Trace } from '@/runtime/runtime.interface';
+
+import { createTraceComponent } from '../trace.component';
+
+export const VisualTraceComponent = createTraceComponent<Trace.Visual & { payload: BaseNode.Visual.ImageStepData }>(
+  Trace.TraceType.VISUAL
+);
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/index.ts
+
+export * from './components';
+export * from './trace.component';
+export * from './trace.interface';
+export * from './trace.service';
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/trace.component.ts
+
+import type { Trace } from '@/runtime/runtime.interface';
+
+import type { TraceAccumulator, TraceDeclaration } from './trace.interface';
+
+export interface TraceComponentOverload<T extends Trace.BaseTraceFrame> {
+  <Context>(declaration: TraceDeclaration<Context, T>): Required<TraceDeclaration<Context, T>>;
+  <Context>(handle: TraceAccumulator<Context, T>): Required<TraceDeclaration<Context, T>>;
+}
+
+export const createTraceComponent =
+  <T extends Trace.BaseTraceFrame>(type: T['type']): TraceComponentOverload<T> =>
+  <Context>(handle: TraceDeclaration<Context, T> | TraceAccumulator<Context, T>): TraceDeclaration<Context, T> => {
+    if (typeof handle === 'function') {
+      return {
+        canHandle: (trace) => trace.type === type,
+        handle,
+      };
+    }
+
+    return handle;
+  };
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/trace.interface.ts
+
+import type { Trace } from '@/runtime/runtime.interface';
+
+export interface TraceOptions<T> {
+  traces?: TraceDeclaration<T, any>[];
+}
+
+export interface TraceDeclaration<Context, T extends Trace.BaseTraceFrame> {
+  canHandle: TraceCanHandle<T>;
+  handle: TraceAccumulator<Context, T>;
+}
+
+export type TraceCanHandle<T extends Trace.BaseTraceFrame> = (trace: T) => boolean;
+
+export interface TraceHandlerMeta<Context> {
+  context: Context;
+}
+
+export type TraceAccumulator<Context, T extends Trace.BaseTraceFrame> = (
+  meta: TraceHandlerMeta<Context>,
+  trace: T
+) => Context;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/sdk-runtime/src/trace/trace.service.ts
+
+import type { RuntimeInteractResponse } from '@/runtime/runtime.interface';
+
+import type { TraceDeclaration, TraceHandlerMeta, TraceOptions } from './trace.interface';
+
+export class TraceService<T = unknown> {
+  private readonly traces: TraceDeclaration<T, any>[] = [];
+
+  public constructor(options: TraceOptions<T> = {}) {
+    this.registerTraces(options.traces ?? []);
+  }
+
+  public registerTrace(step: TraceDeclaration<T, any>): this {
+    this.traces.push(step);
+    return this;
+  }
+
+  public registerTraces(steps: TraceDeclaration<T, any>[]): this {
+    steps.forEach((step) => this.registerTrace(step));
+    return this;
+  }
+
+  public async processTrace(context: T, response: Pick<RuntimeInteractResponse, 'trace'>): Promise<T> {
+    const meta: TraceHandlerMeta<T> = { context };
+
+    for (const trace of response.trace) {
+      const step = this.traces.find((step) => step.canHandle(trace));
+      if (step) {
+        // eslint-disable-next-line no-await-in-loop
+        meta.context = await step.handle(meta, trace);
+      }
+    }
+    return meta.context;
+  }
+}

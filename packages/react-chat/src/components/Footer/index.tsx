@@ -33,25 +33,25 @@ const Footer: React.FC<FooterProps> = ({
   };
 
   const handleMenuActionSelect = (action: string) => {
+    // Use unique identifiers for triggering the workflows
     switch (action) {
       case 'exploreTours':
-        // Trigger the workflow for Explore Tours using a custom identifier
-        triggerWorkflow('EXPLORE_TOURS');
+        triggerWorkflow('WORKFLOW_EXPLORE_TOURS');
         break;
       case 'viewBookings':
-        triggerWorkflow('VIEW_BOOKINGS');
+        triggerWorkflow('WORKFLOW_VIEW_BOOKINGS');
         break;
       case 'contactSupport':
-        triggerWorkflow('CONTACT_SUPPORT');
+        triggerWorkflow('WORKFLOW_CONTACT_SUPPORT');
         break;
       default:
         break;
     }
   };
-  
-  // Add a new function to handle workflow triggering
+
+  // Function to trigger workflows in Voiceflow
   const triggerWorkflow = (workflowId: string) => {
-    // Implement a function that interacts with the Voiceflow API or runtime context
+    // Send a unique command that Voiceflow will interpret as a workflow trigger
     onSend?.(`/workflow ${workflowId}`);
   };
 

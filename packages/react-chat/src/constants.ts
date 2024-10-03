@@ -29,6 +29,8 @@ export enum ClassName {
   PROACTIVE_CLOSE = 'vfrc-proactive-close',
   PROACTIVE_MESSAGE = 'vfrc-proactive-message',
   PROACTIVE = 'vfrc-proactive',
+
+  MODAL = 'vfrc-modal', // Add this line
 }
 
 export const DEVICE_INFO = Bowser.parse(window.navigator.userAgent);
