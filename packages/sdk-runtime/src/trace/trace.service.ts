@@ -1,6 +1,5 @@
 import type { RuntimeInteractResponse } from '@/runtime/runtime.interface';
 import type { TraceDeclaration, TraceHandlerMeta, TraceOptions } from './trace.interface';
-import { CustomActionTraceComponent } from './components/customAction'; // Import the new custom action component
 
 export class TraceService<T = unknown> {
   private readonly traces: TraceDeclaration<T, any>[] = [];
@@ -26,8 +25,7 @@ export class TraceService<T = unknown> {
     for (const trace of response.trace) {
       const step = this.traces.find((step) => step.canHandle(trace));
       if (step) {
-        // eslint-disable-next-line no-await-in-loop
-        meta.context = step.handle(meta, trace);
+        meta.context = step.handle(meta, trace); // Make sure handle is synchronous
       }
     }
     return meta.context;
@@ -42,7 +40,7 @@ export class TraceService<T = unknown> {
           console.log('Triggering custom action: exploreTours');
           // Add any other logic required to handle the custom action here
         }
-        return meta.context;
+        return meta.context; // Make sure the handle method returns context synchronously
       },
     });
   }

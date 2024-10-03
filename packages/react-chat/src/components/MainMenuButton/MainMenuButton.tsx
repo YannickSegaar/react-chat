@@ -5,6 +5,8 @@ import ConfirmationDialog from '@/components/ConfirmationDialog'; // Import the 
 // import { RuntimeService } from '../../../../sdk-runtime/src/runtime/runtime.service';
 import ConcreteRuntimeService from '../../../../sdk-runtime/src/runtime/ConcreteRuntimeService';
 
+
+
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
 }
@@ -14,8 +16,12 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
-  // Assume runtimeService is instantiated here
-  const runtimeService = new ConcreteRuntimeService({ url: 'YOUR_VOICEFLOW_RUNTIME_URL', verify: { authorization: 'YOUR_AUTH_TOKEN' } });
+// Access environment variables
+const runtimeService = new ConcreteRuntimeService({
+  url: process.env.REACT_APP_VOICEFLOW_RUNTIME_URL || '',
+  verify: { authorization: process.env.REACT_APP_VOICEFLOW_AUTH_TOKEN || '' },
+});
+
 
   const handleMenuToggle = () => {
     setIsOpen((prev) => !prev);

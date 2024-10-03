@@ -9786,6 +9786,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.5":
+  version: 16.4.5
+  resolution: "dotenv@npm:16.4.5"
+  checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
+  languageName: node
+  linkType: hard
+
 "duplexify@npm:^3.5.0, duplexify@npm:^3.6.0":
   version: 3.7.1
   resolution: "duplexify@npm:3.7.1"
@@ -18647,6 +18654,7 @@ __metadata:
     "@voiceflow/tsconfig": 1.7.1
     "@voiceflow/vitest-config": 1.2.2
     dependency-cruiser: 16.3.1
+    dotenv: ^16.4.5
     eslint: 9.0.0
     husky: 9.0.11
     lint-staged: 15.2.2
