@@ -34,11 +34,45 @@ export abstract class RuntimeService {
     }
   ): Promise<BaseModels.Transcript.Model>;
 
-  public abstract interact(
-    request: RuntimeInteractRequest
-  ): Promise<Partial<RuntimeInteractResponse> & Pick<RuntimeInteractResponse, 'trace'>>;
-
   public abstract feedback(request: RuntimeFeedbackRequest): Promise<void>;
+
+  /**
+   * Sends a request to trigger an interaction in the Voiceflow runtime
+   * @param request - The runtime interaction request
+   */
+  public async interact(
+    request: RuntimeInteractRequest
+  ): Promise<Partial<RuntimeInteractResponse> & Pick<RuntimeInteractResponse, 'trace'>> {
+    return this.send(`state/user/${encodeURIComponent(request.sessionID)}/interact`, {
+      method: 'POST',
+      body: { action: request.action, config: request.config },
+      headers: {
+        ...(this.options.verify && 'authorization' in this.options.verify ? { authorization: this.options.verify.authorization } : {}),
+        sessionID: request.sessionID,
+        ...(request.versionID ? { versionID: request.versionID } : {}),
+      },
+      params: new URLSearchParams({ verbose: 'true' }),
+    });
+  }
+
+  /**
+   * Sends a custom action trace to the Voiceflow runtime
+   * @param sessionID - The unique session ID for the user
+   * @param actionName - The custom action name to trigger
+   */
+  public async sendCustomAction(sessionID: string, actionName: string): Promise<void> {
+    const requestPayload = {
+      type: 'custom',
+      payload: {
+        name: actionName,
+      },
+    };
+
+    await this.interact({
+      sessionID,
+      action: requestPayload,
+    });
+  }
 
   protected async send<T>(path: string, args: RuntimeHttpRequest = {}): Promise<T> {
     const url = new URL(path, this.options.url);

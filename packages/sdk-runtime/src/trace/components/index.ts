@@ -6,3 +6,4 @@ export * from './speak.component';
 export * from './stream.component';
 export * from './text.component';
 export * from './visual.component';
+export * from './customAction';

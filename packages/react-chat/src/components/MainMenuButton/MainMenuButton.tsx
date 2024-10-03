@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { MainMenuButtonContainer, DropUpMenu } from './styled';
 import Icon from '@/components/Icon';
 import ConfirmationDialog from '@/components/ConfirmationDialog'; // Import the ConfirmationDialog component
+// import { RuntimeService } from '../../../../sdk-runtime/src/runtime/runtime.service';
+import ConcreteRuntimeService from '../../../../sdk-runtime/src/runtime/ConcreteRuntimeService';
 
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
@@ -11,6 +13,9 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+
+  // Assume runtimeService is instantiated here
+  const runtimeService = new ConcreteRuntimeService({ url: 'YOUR_VOICEFLOW_RUNTIME_URL', verify: { authorization: 'YOUR_AUTH_TOKEN' } });
 
   const handleMenuToggle = () => {
     setIsOpen((prev) => !prev);
@@ -22,9 +27,19 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
     setIsDialogOpen(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedAction) {
-      onActionSelect(selectedAction);
+      try {
+        // Trigger the custom action trace to Voiceflow
+        if (selectedAction === 'exploreTours') {
+          await runtimeService.sendCustomAction('YOUR_SESSION_ID', 'exploreTours');
+        } else {
+          // Handle other actions if needed, or call the callback function
+          onActionSelect(selectedAction);
+        }
+      } catch (error) {
+        console.error('Error sending custom action:', error);
+      }
     }
     setIsDialogOpen(false);
   };
