@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Button from '@/components/Button';
 import ChatInput from '@/components/ChatInput';
-import MainMenuButton from '@/components/MainMenuButton'; // Import the MainMenuButton
-import { Container, Watermark, MainMenuButtonWrapper, InputWrapper } from './styled';
+import MainMenuButton from '@/components/MainMenuButton';
+import { Container, Watermark, InteractionWrapper, InputWrapper, StartNewChatWrapper, FullWidthButtonWrapper } from './styled';
 
 export interface FooterProps {
   withWatermark: boolean;
@@ -11,7 +11,7 @@ export interface FooterProps {
   audioInterface?: boolean;
   onStart?: (() => Promise<void>) | undefined;
   onSend?: ((message: string) => Promise<void>) | undefined;
-  speechRecognition?: any; // Use correct type if available
+  speechRecognition?: any;
 }
 
 const Footer: React.FC<FooterProps> = ({
@@ -35,7 +35,7 @@ const Footer: React.FC<FooterProps> = ({
   const handleMenuActionSelect = (action: string) => {
     switch (action) {
       case 'exploreTours':
-        onSend?.('Explore Tours'); // Sends the selected action to Voiceflow
+        onSend?.('Explore Tours');
         break;
       case 'viewBookings':
         onSend?.('View Bookings');
@@ -49,34 +49,46 @@ const Footer: React.FC<FooterProps> = ({
   };
 
   return (
-    <Container withShadow={!!hasEnded}>
+    <Container>
       {hasEnded ? (
-        <Button onClick={onStart}>Start New Chat</Button>
+        <StartNewChatWrapper>
+          <FullWidthButtonWrapper>
+            <Button onClick={onStart}>Start New Chat</Button>
+          </FullWidthButtonWrapper>
+          {withWatermark && (
+            <Watermark>
+              Assistant ⚡️ by
+              <a target="_blank" href="https://www.romaix.ai/" rel="noreferrer">
+                RomAIx
+              </a>
+            </Watermark>
+          )}
+        </StartNewChatWrapper>
       ) : (
         <>
-          <MainMenuButtonWrapper>
+          <InteractionWrapper>
             <MainMenuButton onActionSelect={handleMenuActionSelect} />
-          </MainMenuButtonWrapper>
-          <InputWrapper>
-            <ChatInput
-              value={message}
-              placeholder="Message…"
-              autoFocus
-              onValueChange={setMessage}
-              onSend={handleSend}
-              disableSend={disableSend}
-              audioInterface={audioInterface}
-              speechRecognition={speechRecognition}
-            />
-            {withWatermark && (
-              <Watermark>
-                Assistant ⚡️ by
-                <a target="_blank" href="https://www.romaix.ai/" rel="noreferrer">
-                  RomAIx
-                </a>
-              </Watermark>
-            )}
-          </InputWrapper>
+            <InputWrapper>
+              <ChatInput
+                value={message}
+                placeholder="Message…"
+                autoFocus
+                onValueChange={setMessage}
+                onSend={handleSend}
+                disableSend={disableSend}
+                audioInterface={audioInterface}
+                speechRecognition={speechRecognition}
+              />
+            </InputWrapper>
+          </InteractionWrapper>
+          {withWatermark && (
+            <Watermark>
+              Assistant ⚡️ by
+              <a target="_blank" href="https://www.romaix.ai/" rel="noreferrer">
+                RomAIx
+              </a>
+            </Watermark>
+          )}
         </>
       )}
     </Container>

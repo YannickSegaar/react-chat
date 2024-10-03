@@ -9,3 +9,5 @@ export { default as soundOff } from './sound-off.svg?react';
 export { default as stop } from './stop.svg?react';
 export { default as thumbsUp } from './thumbs-up.svg?react';
 export { default as topCaret } from './top-caret.svg?react';
+export { default as plusCircle } from './plus-circle.svg?react';
+

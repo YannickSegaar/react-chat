@@ -1,26 +1,19 @@
-import Button from '@/components/Button';
-import Input from '@/components/Input';
+import { styled } from '@/styles';
 import { ClassName } from '@/constants';
 import { tagFactory } from '@/hocs';
-import { styled } from '@/styles';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
 
+// Define the tag for styling
 const tag = tagFactory(ClassName.FOOTER);
 
+// Styled Container for Footer
 export const Container = styled(tag('footer'), {
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
-  padding: '$3 $4 $4 $4',
+  padding: '$3 $4',
   borderRadius: '$1',
-
-  // Ensures the input container expands to take up the available space
-  [`& ${Input.Container}`]: {
-    flex: 1,
-  },
-
-  // Styling for buttons in the container (e.g., "Start New Chat" button)
-  [`& ${Button.Container}`]: {
-    width: '100%',
-  },
 
   variants: {
     withShadow: {
@@ -31,12 +24,51 @@ export const Container = styled(tag('footer'), {
   },
 });
 
-// Adding styles for the Watermark (existing styling)
+export const InteractionWrapper = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  marginBottom: '$2',
+});
+
+export const InputWrapper = styled('div', {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+
+  [`& ${Input.Container}`]: {
+    width: '100%',
+  },
+});
+
+export const StartNewChatWrapper = styled('div', {
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+
+  [`& ${Button}`]: {
+    width: '100%',
+    padding: '10px 0',
+  },
+});
+
+export const FullWidthButtonWrapper = styled('div', {
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+
+  '& button': {
+    width: '100%', // Ensure the button takes the full width of its wrapper
+    padding: '10px 0', // Adjust padding as needed
+  },
+});
+
 export const Watermark = styled(tag('aside', 'watermark'), {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  padding: '4px 0', // Adjust padding as needed
+  padding: '4px 0',
   typo: { size: 12, height: '17px' },
   color: '$darkGrey',
 
@@ -49,20 +81,4 @@ export const Watermark = styled(tag('aside', 'watermark'), {
       outline: 0,
     },
   },
-});
-
-// Wrapper for the MainMenuButton to control its styling
-export const MainMenuButtonWrapper = styled('div', {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginRight: '10px', // Adjust this value if needed to properly align with ChatInput
-  flexShrink: 0, // Prevent shrinking of the button
-});
-
-// Wrapper for ChatInput and Watermark to align vertically
-export const InputWrapper = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1, // Allows the entire wrapper to take up remaining space
 });

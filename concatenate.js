@@ -3,7 +3,7 @@ const path = require('path');
 
 // Adjust the base directory to the 'src' directory
 const baseDir = path.resolve(__dirname, 'packages/react-chat/src'); 
-const outputFile = path.resolve(__dirname, 'knowledgebase.txt');
+const outputFile = path.resolve(__dirname, 'knowledgebase_new.txt');
 
 // List of file extensions to include
 const includeExtensions = ['.js', '.jsx', '.ts', '.tsx']; // Include other relevant extensions

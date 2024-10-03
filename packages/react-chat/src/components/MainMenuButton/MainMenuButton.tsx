@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { MainMenuButtonContainer, MenuButton, DropUpMenu } from './styled'; // Import from styled.ts
-import Icon from '@/components/Icon'; // Import the existing Icon component for styling consistency
+import { MainMenuButtonContainer, DropUpMenu } from './styled';
+import Icon from '@/components/Icon'; // Import the Icon component for styling consistency
 
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
@@ -20,9 +20,8 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
 
   return (
     <MainMenuButtonContainer>
-      <MenuButton onClick={handleMenuToggle}>
-        <Icon svg="minus" /> {/* Assuming you have an SVG for a "menu" icon */}
-      </MenuButton>
+      {/* Replace the button wrapper with Icon itself */}
+      <Icon svg="plusCircle" onClick={handleMenuToggle} css={{ cursor: 'pointer', width: '24px', height: '24px' }} />
       {isOpen && (
         <DropUpMenu>
           <button onClick={() => handleActionClick('exploreTours')}>Explore Tours</button>

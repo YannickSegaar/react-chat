@@ -1,28 +1,12 @@
 import { styled } from '@/styles'; // Keep using the project-specific styling utility
 
 export const MainMenuButtonContainer = styled('div', {
-  position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
-});
-
-export const MenuButton = styled('button', {
-  backgroundColor: '$primary', // Match the main theme color
-  borderRadius: '50%',
-  border: 'none',
-  width: 36,
-  height: 36,
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  cursor: 'pointer',
-  marginRight: 10, // Spacing from the input
-  boxShadow: '0 4px 16px 0 $shadow4, 0 0 0 1px $shadow2',
-
-  '&:hover': {
-    backgroundColor: '$darkPrimary',
-  },
-});
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center', // Ensures the MainMenuButton is aligned vertically with other elements
+    justifyContent: 'center',
+    marginRight: '12px', // Adjust the spacing between the MainMenuButton and the ChatInput container to prevent collision
+  });
 
 export const DropUpMenu = styled('div', {
   position: 'absolute',

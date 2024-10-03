@@ -1,5 +1,5 @@
 import AssistantInfo from '@/components/AssistantInfo';
-import Footer from '@/components/Footer';
+import { Container as FooterContainer } from '@/components/Footer/styled';
 import Header from '@/components/Header';
 import Loader from '@/components/Loader';
 import Prompt from '@/components/Prompt';
@@ -39,7 +39,7 @@ export const Container = styled(tag('article'), {
     animation: `${fadeIn} 150ms ease forwards`,
   },
 
-  [`& ${Footer.Container}`]: {
+  [`& ${FooterContainer}`]: { // Update here
     ...animationStyles({ duration: 300, delay: 300 }),
   },
 
