@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Adjust the base directory to the 'src' directory
-const baseDir = path.resolve(__dirname, 'packages/sdk-runtime'); 
-const outputFile = path.resolve(__dirname, 'sdk_runtime_codes.txt');
+const baseDir = path.resolve(__dirname, 'packages/react-chat'); 
+const outputFile = path.resolve(__dirname, 'react_chat_codes.txt');
 
 // List of file extensions to include
 const includeExtensions = ['.js', '.jsx', '.ts', '.tsx']; // Include other relevant extensions
