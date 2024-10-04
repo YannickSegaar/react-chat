@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { MainMenuButtonContainer, DropUpMenu } from './styled';
 import Icon from '@/components/Icon';
-import ConfirmationDialog from '@/components/ConfirmationDialog'; // Import the ConfirmationDialog component
+import ConfirmationDialog from '@/components/ConfirmationDialog';
 
+// Define the prop types for MainMenuButton
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
 }
@@ -24,7 +25,7 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
 
   const handleConfirm = () => {
     if (selectedAction) {
-      onActionSelect(selectedAction);
+      sendCustomActionTrace(selectedAction); // This sends the custom action trace
     }
     setIsDialogOpen(false);
   };
@@ -32,6 +33,23 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
   const handleCancel = () => {
     setIsDialogOpen(false);
     setSelectedAction(null);
+  };
+
+  // Function to send custom action trace
+  const sendCustomActionTrace = (action: string) => {
+    const customTrace = {
+      type: 'customAction', // Ensure this matches your Voiceflow custom action type
+      payload: {
+        action, // This is the action identifier, e.g., 'exploreTours'
+        status: 'success', // Include this to indicate confirmation
+      },
+    };
+
+    if (window.voiceflow && window.voiceflow.chat) {
+      window.voiceflow.chat.interact(customTrace); // Directly pass the trace object here
+    } else {
+      console.error('Voiceflow Web Chat API is not available.');
+    }
   };
 
   return (

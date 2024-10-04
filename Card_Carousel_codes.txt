@@ -1,0 +1,656 @@
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Card/Card.story.tsx
+
+import type { Meta, StoryObj } from '@storybook/react';
+
+import { MOCK_IMAGE } from '@/fixtures';
+
+import Card from '.';
+
+type Story = StoryObj<typeof Card>;
+
+const meta: Meta<typeof Card> = {
+  title: 'Components/Card',
+  component: Card,
+  args: {
+    title: 'Card Header',
+    image: '',
+    description:
+      'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Culpa et aliquam sunt necessitatibus molestiae amet ipsum ut.',
+    actions: [],
+  },
+};
+export default meta;
+
+export const Simple: Story = {};
+
+export const WithImage: Story = {
+  args: {
+    image: MOCK_IMAGE,
+  },
+};
+
+export const Actionable: Story = {
+  args: {
+    ...WithImage.args,
+    actions: [
+      { request: {} as any, name: 'First Button' },
+      { request: {} as any, name: 'Second Button' },
+      { request: {} as any, name: 'Third Button' },
+    ],
+  },
+};
+
+export const WithLongLabels: Story = {
+  args: {
+    ...WithImage.args,
+    actions: [
+      { request: {} as any, name: 'First Button with a very long long long wrapping label' },
+      { request: {} as any, name: 'Second Button with a shorter text' },
+      { request: {} as any, name: 'Third button, also with a shorter text' },
+    ],
+  },
+};
+
+export const WithLongTitle: Story = {
+  args: {
+    ...WithImage.args,
+    title: 'Long card title to wrap inside the card. Some more text to test the growth of card.',
+    actions: [{ request: {} as any, name: 'First Button' }],
+  },
+};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Card/index.tsx
+
+import { useContext, useMemo } from 'react';
+
+import Button from '@/components/Button';
+import Image from '@/components/Image';
+import { RuntimeStateAPIContext } from '@/contexts';
+
+import { Container, Content, Description, Header, Link } from './styled';
+import type { CardProps } from './types';
+import { isValidHttpUrl } from './utils';
+
+export type { CardProps } from './types';
+
+const Card: React.FC<CardProps> = ({ title, description, image, actions = [] }) => {
+  const runtime = useContext(RuntimeStateAPIContext);
+  const isLink = isValidHttpUrl(description);
+
+  const buttons = useMemo(() => actions.filter(({ name }) => !!name), [actions]);
+
+  return (
+    <Container>
+      {!!image && <Image image={image} />}
+      <Content>
+        {!!title && <Header>{title}</Header>}
+        {!!description &&
+          (isLink ? (
+            <Link rel="noopener noreferrer" href={description} target="_blank">
+              {description}
+            </Link>
+          ) : (
+            <Description>{description}</Description>
+          ))}
+        {buttons.map(({ request, name }, index) => (
+          <Button onClick={() => runtime.interact(request, name)} key={index}>
+            {name}
+          </Button>
+        ))}
+      </Content>
+    </Container>
+  );
+};
+
+/**
+ * A titled card with content and optional controls.
+ *
+ * @see {@link https://voiceflow.github.io/react-chat/?path=/story/components-card--simple}
+ */
+export default Object.assign(Card, {
+  Container,
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Card/styled.ts
+
+import Button from '@/components/Button';
+import { ClassName } from '@/constants';
+import { tagFactory } from '@/hocs';
+import { styled } from '@/styles';
+
+export const CARD_WIDTH = 246;
+
+const tag = tagFactory(ClassName.CARD);
+
+export const Container = styled(tag('section'), {
+  display: 'inline-flex',
+  flexDirection: 'column',
+  width: CARD_WIDTH,
+  border: '1px solid #f1f1f1',
+  borderRadius: '$2',
+  boxSizing: 'content-box',
+  overflow: 'hidden',
+  backgroundColor: '$lightGrey',
+
+  [`& ${Button.Container}`]: {
+    width: '100%',
+    color: '$primary',
+    backgroundColor: '$white',
+    boxShadow: '0 5px 8px -8px $shadow12, 0 2px 4px -3px $shadow12, 0 0 0 1px $shadow3, 0 1px 3px 1px $shadow1',
+    marginBottom: '$2',
+    trans: ['color', 'box-shadow'],
+
+    '&:hover': {
+      color: '$darkPrimary',
+      backgroundColor: '$white',
+      boxShadow: '0 5px 8px -8px $shadow12, 0 2px 4px -3px $shadow12, 0 0 0 1px $shadow4, 0 1px 4px 1px $shadow4',
+    },
+
+    '&:first-of-type': {
+      marginTop: '$3',
+    },
+
+    '&:last-of-type': {
+      marginBottom: 0,
+    },
+  },
+});
+
+export const Content = styled(tag('main', 'content'), {
+  padding: '$3',
+});
+
+export const Header = styled(tag('h3', 'header'), {
+  margin: '0 0 $1 0',
+  typo: { weight: '$2' },
+  color: '$black',
+  wordBreak: 'break-word',
+  maxWidth: '100%',
+  whiteSpace: 'break-spaces',
+});
+
+export const Description = styled(tag('p', 'description'), {
+  margin: 0,
+  typo: { size: '$1' },
+  color: '$darkGrey',
+  whiteSpace: 'normal',
+  wordBreak: 'break-word',
+});
+
+export const Link = styled(tag('a', 'link'), {
+  margin: 0,
+  typo: { size: '$1' },
+  whiteSpace: 'normal',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  color: 'rgb(93, 157, 245)',
+  textDecoration: 'underline',
+  pointerEvents: 'all',
+  wordBreak: 'break-all',
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Card/types.ts
+
+import type { RuntimeAction } from '@voiceflow/sdk-runtime';
+
+import type { Link } from './styled';
+
+export interface CardActionProps {
+  /**
+   * The label that will appear on the button.
+   */
+  name: string;
+
+  /**
+   * the request that will be sent by the runtime when the button is clicked.
+   */
+  request: RuntimeAction;
+}
+
+export interface CardProps {
+  /**
+   * The title of the card.
+   */
+  title: string;
+
+  /**
+   * Text content of the card.
+   * If the string is a valid URL it will be rendered in a {@link Link}.
+   */
+  description: string;
+
+  /**
+   * An image URL that will render at the top of the card if provided.
+   */
+  image?: string | undefined | null;
+
+  /**
+   * A list of actions that will appear as button controls at the bottom of the card.
+   */
+  actions?: CardActionProps[] | undefined;
+}
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Card/utils.ts
+
+export const isValidHttpUrl = (value: string) => {
+  let url;
+
+  try {
+    url = new URL(value);
+  } catch (_) {
+    return false;
+  }
+  return url.protocol === 'http:' || url.protocol === 'https:';
+};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Carousel/Carousel.story.tsx
+
+import type { Meta, StoryObj } from '@storybook/react';
+import { useRef } from 'react';
+
+import Avatar from '@/components/Avatar';
+import Chat from '@/components/Chat';
+import SystemResponse from '@/components/SystemResponse';
+import { MOCK_IMAGE, VF_ICON } from '@/fixtures';
+import { ChatWidget } from '@/views';
+
+import Carousel from '.';
+
+const meta: Meta<typeof Carousel> = {
+  component: Carousel,
+  title: 'Components/Carousel',
+};
+type Story = StoryObj<typeof Carousel>;
+
+export default meta;
+
+const IMAGE = MOCK_IMAGE;
+const FIRST_CARD = {
+  title: 'First Card',
+  description: 'Lorem ipsum dolor sit amet',
+  image: IMAGE,
+  actions: [
+    { request: {} as any, name: 'First Button' },
+    { request: {} as any, name: 'Second Button' },
+    { request: {} as any, name: 'Third Button' },
+  ],
+};
+
+const MULTIPLE_CARDS = [
+  FIRST_CARD,
+  {
+    title: 'Second Card',
+    description:
+      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem voluptas perspiciatis est quis dolores!',
+    image: IMAGE,
+  },
+  {
+    title: 'Third Card with a long title that wraps',
+    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+    actions: [
+      { request: {} as any, name: 'Fourth Button with a long label that wraps' },
+      { request: {} as any, name: 'Fifth Button' },
+    ],
+  },
+];
+
+export const SingleCard: Story = {
+  args: {
+    cards: [FIRST_CARD],
+  },
+};
+
+export const MultipleCards: Story = {
+  args: {
+    cards: MULTIPLE_CARDS,
+  },
+};
+
+export const ControlsTemplate: Story = {
+  args: {
+    cards: MULTIPLE_CARDS,
+  },
+
+  render: (args) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const controlsRef = useRef<HTMLDivElement>(null);
+
+    return (
+      <ChatWidget.ChatContainer>
+        <Chat.Dialog>
+          <SystemResponse.Controls ref={controlsRef} />
+          <SystemResponse.Container ref={containerRef} withImage scrollable>
+            <Avatar avatar={VF_ICON} />
+            <Carousel {...args} controlsRef={controlsRef} containerRef={containerRef} />
+          </SystemResponse.Container>
+        </Chat.Dialog>
+      </ChatWidget.ChatContainer>
+    );
+  },
+};
+
+export const WithControls: Story = {
+  args: {
+    cards: MULTIPLE_CARDS,
+  },
+};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Carousel/CarouselButton.tsx
+
+import type { MouseEventHandler } from 'react';
+import { forwardRef } from 'react';
+
+import Icon from '@/components/Icon';
+
+import { ButtonContainer } from './styled';
+
+export interface CarouselButtonProps {
+  /**
+   * The end of the container where the button will be rendered.
+   */
+  alignment: 'left' | 'right';
+
+  /**
+   * If true then the button will be visible, otherwise hidden.
+   */
+  visible: boolean;
+
+  /**
+   * The buttons will be centered vertically based on the height of this element.
+   */
+  containerEl: HTMLElement;
+
+  /**
+   * A click handler for the button.
+   */
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+}
+
+/**
+ * A button used to scroll to the previous or next Card in a Carousel.
+ */
+const CarouselButton = forwardRef<HTMLElement, CarouselButtonProps>(
+  ({ onClick, alignment, visible, containerEl }, ref) => (
+    <ButtonContainer
+      ref={ref}
+      alignment={alignment}
+      visible={visible}
+      css={{
+        transform: `translateY(calc(${containerEl.clientHeight / 2}px - 50%))`,
+      }}
+      onClick={onClick}
+    >
+      <Icon svg="largeArrowLeft" />
+    </ButtonContainer>
+  )
+);
+
+export default CarouselButton;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Carousel/constants.ts
+
+import { CARD_WIDTH } from '@/components/Card/styled';
+
+import { CAROUSEL_GUTTER_WIDTH } from './styled';
+
+export const CARD_WITH_BORDER_WIDTH = CARD_WIDTH + 2;
+export const PREVIOUS_CONTROL_BOUNDARY = CARD_WITH_BORDER_WIDTH / 3;
+export const NEXT_CONTROL_BOUNDARY = CARD_WITH_BORDER_WIDTH + CAROUSEL_GUTTER_WIDTH + PREVIOUS_CONTROL_BOUNDARY;
+export const CARD_WITH_GUTTER_WIDTH = CARD_WITH_BORDER_WIDTH + CAROUSEL_GUTTER_WIDTH;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Carousel/hooks.ts
+
+import type { RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+import type { CardProps } from '../Card';
+import { CARD_WITH_GUTTER_WIDTH, NEXT_CONTROL_BOUNDARY, PREVIOUS_CONTROL_BOUNDARY } from './constants';
+import { CAROUSEL_GUTTER_WIDTH } from './styled';
+
+export const useScrollTo =
+  <T extends HTMLElement>(ref: RefObject<T> | undefined, getNextIndex: (el: T) => number) =>
+  () => {
+    const el = ref?.current;
+    if (!el) return;
+
+    const index = getNextIndex(el);
+
+    el.scrollTo({
+      left: index && index * CARD_WITH_GUTTER_WIDTH,
+      behavior: 'smooth',
+    });
+  };
+
+export const useScrollObserver = (
+  containerRef: RefObject<HTMLDivElement> | undefined,
+  controlsRef: RefObject<HTMLSpanElement> | undefined,
+  cards: CardProps[]
+) => {
+  const [showPreviousButton, setShowPreviousButton] = useState(false);
+  const [showNextButton, setShowNextButton] = useState(false);
+  const previousButtonRef = useRef<HTMLButtonElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const hasMultipleCards = cards.length > 1;
+
+  useEffect(() => {
+    if (!controlsRef?.current || !hasMultipleCards) return;
+
+    setShowNextButton(true);
+  }, []);
+
+  useEffect(() => {
+    const containerEl = containerRef?.current;
+    if (!containerEl || !hasMultipleCards) return undefined;
+
+    const trackWidth = CARD_WITH_GUTTER_WIDTH * cards.length - CAROUSEL_GUTTER_WIDTH;
+
+    const handleScroll = (): void => {
+      const { scrollLeft } = containerEl;
+
+      setShowPreviousButton(scrollLeft >= PREVIOUS_CONTROL_BOUNDARY);
+      setShowNextButton(scrollLeft <= trackWidth - NEXT_CONTROL_BOUNDARY);
+    };
+
+    containerEl.addEventListener('scroll', handleScroll);
+
+    return () => {
+      containerEl.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return {
+    previousButtonRef,
+    nextButtonRef,
+    showPreviousButton,
+    showNextButton,
+  };
+};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Carousel/index.tsx
+
+import type { RefObject } from 'react';
+import { createPortal } from 'react-dom';
+
+import type { CardProps } from '@/components/Card';
+import Card from '@/components/Card';
+
+import CarouselButton from './CarouselButton';
+import { CARD_WITH_GUTTER_WIDTH } from './constants';
+import { useScrollObserver, useScrollTo } from './hooks';
+import { Container } from './styled';
+
+export interface CarouselProps {
+  /**
+   * A list of props objects which will be passed to {@link Card} components.
+   */
+  cards: CardProps[];
+
+  /**
+   * A reference to the HTML element of a parent horizontal scrolling container.
+   */
+  containerRef?: RefObject<HTMLDivElement>;
+
+  /**
+   * A reference to an HTML element to anchor the carousel controls.
+   */
+  controlsRef?: RefObject<HTMLSpanElement>;
+}
+
+const Carousel: React.FC<CarouselProps> = ({ cards, containerRef, controlsRef }) => {
+  const { previousButtonRef, nextButtonRef, showPreviousButton, showNextButton } = useScrollObserver(
+    containerRef,
+    controlsRef,
+    cards
+  );
+  const containerEl = containerRef?.current;
+  const controlsEl = controlsRef?.current;
+  const showControls = containerEl && controlsEl;
+
+  const scrollToPrevious = useScrollTo(containerRef, (el) => Math.ceil(el.scrollLeft / CARD_WITH_GUTTER_WIDTH) - 1);
+  const scrollToNext = useScrollTo(containerRef, (el) => Math.floor(el.scrollLeft / CARD_WITH_GUTTER_WIDTH) + 1);
+
+  return (
+    <>
+      <Container>
+        {cards.map((card, index) => (
+          <Card {...card} key={index} />
+        ))}
+      </Container>
+      {showControls &&
+        createPortal(
+          <>
+            <CarouselButton
+              ref={previousButtonRef}
+              alignment="left"
+              visible={showPreviousButton}
+              containerEl={containerEl}
+              onClick={scrollToPrevious}
+            />
+            <CarouselButton
+              ref={nextButtonRef}
+              alignment="right"
+              visible={showNextButton}
+              containerEl={containerEl}
+              onClick={scrollToNext}
+            />
+          </>,
+          controlsEl
+        )}
+    </>
+  );
+};
+
+/**
+ * A carousel of {@link Card} components that can be scrolled natively or with buttons.
+ *
+ * @see {@link https://voiceflow.github.io/react-chat/?path=/story/components-carousel--single-card}
+ */
+export default Object.assign(Carousel, {
+  Container,
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Carousel/styled.ts
+
+import Card from '@/components/Card';
+import Icon from '@/components/Icon';
+import { ClassName } from '@/constants';
+import { tagFactory } from '@/hocs';
+import { styled } from '@/styles';
+
+const BUTTON_SIZE = 42;
+export const CAROUSEL_GUTTER_WIDTH = 12;
+
+const tag = tagFactory(ClassName.CAROUSEL);
+
+export const ButtonContainer = styled(tag('span', 'button'), {
+  position: 'absolute',
+  zIndex: 1,
+
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: '$round',
+  trans: ['background-color', 'box-shadow', 'opacity'],
+
+  height: BUTTON_SIZE,
+  width: BUTTON_SIZE,
+  cursor: 'pointer',
+  backgroundColor: '$white',
+  color: '$black',
+  boxShadow: '0 1px 3px 1px $shadow1, 0 0 0 1px $shadow3, 0 2px 4px -3px $shadow12, 0 5px 8px -8px $shadow12',
+  border: 'none',
+
+  [`& ${Icon.Frame}`]: {
+    height: '$xxs',
+    width: '$xxs',
+    color: 'rgba(0,0,0,0.6)',
+    trans: ['color'],
+  },
+
+  '&:hover': {
+    boxShadow: '0 1px 4px 1px $shadow4, 0 0 0 1px $shadow4, 0 2px 4px -3px $shadow12, 0 5px 8px -8px $shadow12',
+  },
+
+  '&:active': {
+    boxShadow: '0 1px 4px 1px $shadow8, 0 0 0 1px $shadow4, 0 2px 4px -3px $shadow12, 0 5px 8px -8px $shadow12',
+  },
+
+  [`
+      &:hover ${Icon.Frame},
+      &:active ${Icon.Frame}
+    `]: {
+    color: 'rgba(0,0,0,0.8)',
+  },
+
+  variants: {
+    visible: {
+      true: {
+        opacity: 1,
+        pointerEvents: 'auto',
+      },
+      false: {
+        opacity: 0,
+        pointerEvents: 'none',
+      },
+    },
+    alignment: {
+      left: {
+        left: 48 - BUTTON_SIZE / 2,
+      },
+      right: {
+        right: 70 - BUTTON_SIZE / 2,
+
+        [`& ${Icon.Frame}`]: {
+          transform: 'scaleX(-1)',
+        },
+      },
+    },
+  },
+});
+
+export const Container = styled(tag('div'), {
+  display: 'flex',
+  whiteSpace: 'nowrap',
+
+  [`& ${Card.Container}`]: {
+    height: 'fit-content',
+    flexShrink: 0,
+    marginLeft: CAROUSEL_GUTTER_WIDTH,
+
+    '&:first-of-type': {
+      marginLeft: 0,
+    },
+  },
+});
