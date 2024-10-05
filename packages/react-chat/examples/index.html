@@ -15,14 +15,45 @@
         top: 0;
         left: 0;
       }
+      #confetti-canvas {
+        position: fixed;
+        z-index: 999;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+      }
     </style>
 </head>
 <body>
+    <canvas id="confetti-canvas"></canvas>
     <div id="flat-chat"></div>
     <div id="voiceflow-chat-frame"></div>
 
-    <script>
-      function _vf_load() {
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script type="module">
+      import { 
+        VideoExtension,
+        TimerExtension,
+        FormExtension,
+        MapExtension,
+        FileUploadExtension,
+        KBUploadExtension,
+        DateExtension,
+        ConfettiExtension,
+        AuthenticationFormExtension,
+        GTH_FormExtension,
+        GTH_FeedbackExtension,
+        WaitingAnimationExtension,
+        GiftCardDisplayExtension,
+        DoneAnimationExtension,
+        InvisibleTimerExtension,
+        DisableInputExtension,
+        FeedbackExtension 
+      } from './extensions.js';
+
+      function loadVoiceflowChat() {
         window.voiceflow.chat.load({
           url: '<%= VITE_VF_RUNTIME_URL %>',
           verify: { projectID: '<%= VITE_VF_PROJECT_ID %>' },
@@ -33,13 +64,57 @@
           render: {
             mode: 'overlay',
           },
-          autostart: true,
-          allowDangerousHTML: false,
+          autostart: false,
+          allowDangerousHTML: true,
+          assistant: {
+            extensions: [
+              VideoExtension,
+              TimerExtension,
+              FormExtension,
+              MapExtension,
+              FileUploadExtension,
+              KBUploadExtension,
+              DateExtension,
+              ConfettiExtension,
+              AuthenticationFormExtension,
+              GTH_FormExtension,
+              FeedbackExtension,
+              GTH_FeedbackExtension,
+              WaitingAnimationExtension,
+              GiftCardDisplayExtension,
+              DoneAnimationExtension,
+              InvisibleTimerExtension,
+              DisableInputExtension
+            ],
+          },
         }).then(() => {
           console.log('Voiceflow chat widget loaded');
+          window.voiceflow.chat.proactive.clear(); // clear all previous messages
+
+          // Delay the first proactive message
+          setTimeout(function() {
+            window.voiceflow.chat.proactive.push(
+              { type: 'text', payload: { message: "Aloha! 🌺" } }
+            );
+          }, 2000);
+
+          // Delay the second proactive message
+          setTimeout(function() {
+            window.voiceflow.chat.proactive.push(
+              { type: 'text', payload: { message: "Looking for the perfect tour? 😊" } }
+            );
+          }, 4500);
+
+          // Delay opening the chat window
+          setTimeout(function() {
+            window.voiceflow.chat.open();
+          }, 6500);
         });
       }
+
+      // Expose the function to the global scope
+      window._vf_load = loadVoiceflowChat;
     </script>
-    <script type="module" src="../src/index.tsx" onload="_vf_load()"></script>
+    <script type="module" src="../src/index.tsx" onload="window._vf_load()"></script>
 </body>
 </html>

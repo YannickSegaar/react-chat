@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Tours Hawaii Chat</title>
+    <style>
+      body {
+        background-color: #f9f9f9;
+      }
+      #flat-chat {
+        width: 100vw;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    </style>
+</head>
+<body>
+    <div id="flat-chat"></div>
+    <div id="voiceflow-chat-frame"></div>
+
+    <script>
+      function _vf_load() {
+        window.voiceflow.chat.load({
+          url: '<%= VITE_VF_RUNTIME_URL %>',
+          verify: { projectID: '<%= VITE_VF_PROJECT_ID %>' },
+          versionID: '<%= VITE_VF_VERSION_ID %>',
+          user: {
+            name: 'Development User',
+          },
+          render: {
+            mode: 'overlay',
+          },
+          autostart: true,
+          allowDangerousHTML: false,
+        }).then(() => {
+          console.log('Voiceflow chat widget loaded');
+        });
+      }
+    </script>
+    <script type="module" src="../src/index.tsx" onload="_vf_load()"></script>
+</body>
+</html>

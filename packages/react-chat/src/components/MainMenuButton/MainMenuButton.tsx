@@ -12,6 +12,19 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
+  const menuOptions = [
+    'MainMenu_Intent_A',
+    'MainMenu_Intent_B',
+    'MainMenu_Intent_C',
+    'MainMenu_Intent_D',
+    'MainMenu_Intent_E',
+    'MainMenu_Intent_F',
+    'MainMenu_Intent_G',
+    'MainMenu_Intent_H',
+    'MainMenu_Intent_I',
+    'MainMenu_Intent_J'
+  ];
+
   const handleMenuToggle = () => {
     setIsOpen((prev) => !prev);
   };
@@ -24,20 +37,6 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
 
   const handleConfirm = () => {
     if (selectedAction) {
-      const tracePayload = {
-        type: 'custom_trace',
-        payload: {
-          customData: selectedAction
-        }
-      };
-
-      console.log('Sending custom trace:', tracePayload);
-
-      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
-        window.voiceflow.chat.interact(tracePayload);
-      } else {
-        console.error('Voiceflow chat is not properly initialized');
-      }
       onActionSelect(selectedAction);
     }
     setIsDialogOpen(false);
@@ -58,9 +57,11 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
         />
         {isOpen && (
           <DropUpMenu>
-            <button onClick={() => handleActionClick('exploreTours')}>Explore Tours</button>
-            <button onClick={() => handleActionClick('viewBookings')}>View Bookings</button>
-            <button onClick={() => handleActionClick('contactSupport')}>Contact Support</button>
+            {menuOptions.map((option) => (
+              <button key={option} onClick={() => handleActionClick(option)}>
+                {option}
+              </button>
+            ))}
           </DropUpMenu>
         )}
       </MainMenuButtonContainer>
@@ -69,7 +70,8 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
           isOpen={isDialogOpen}
           onAccept={handleConfirm}
           onCancel={handleCancel}
-          message={`Do you want to ${selectedAction}?`}
+          message={`Do you want to trigger ${selectedAction}?`}
+          selectedAction={selectedAction}
         />
       )}
     </>
