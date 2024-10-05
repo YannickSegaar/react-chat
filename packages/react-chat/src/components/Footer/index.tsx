@@ -25,34 +25,13 @@ const Footer: React.FC<FooterProps> = ({
 }) => {
   const [message, setMessage] = useState('');
 
-  const handleSend = async (): Promise<void> => {
+  const handleSend = async (message: string): Promise<void> => {
     if (!message || disableSend) return;
-
-    setMessage('');
     await onSend?.(message);
   };
 
   const handleMenuActionSelect = (action: string) => {
-    // Use unique identifiers for triggering the workflows
-    switch (action) {
-      case 'exploreTours':
-        triggerWorkflow('WORKFLOW_EXPLORE_TOURS');
-        break;
-      case 'viewBookings':
-        triggerWorkflow('WORKFLOW_VIEW_BOOKINGS');
-        break;
-      case 'contactSupport':
-        triggerWorkflow('WORKFLOW_CONTACT_SUPPORT');
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Function to trigger workflows in Voiceflow
-  const triggerWorkflow = (workflowId: string) => {
-    // Send a unique command that Voiceflow will interpret as a workflow trigger
-    onSend?.(`/workflow ${workflowId}`);
+    // This function is no longer needed as the MainMenuButton now handles the interaction directly
   };
 
   return (
@@ -74,14 +53,14 @@ const Footer: React.FC<FooterProps> = ({
       ) : (
         <>
           <InteractionWrapper>
-            <MainMenuButton onActionSelect={handleMenuActionSelect} />
+            <MainMenuButton onActionSelect={() => {}} /> {/* We don't need to pass a function here anymore */}
             <InputWrapper>
               <ChatInput
                 value={message}
                 placeholder="Message…"
                 autoFocus
                 onValueChange={setMessage}
-                onSend={handleSend}
+                onSend={() => handleSend(message)}
                 disableSend={disableSend}
                 audioInterface={audioInterface}
                 speechRecognition={speechRecognition}

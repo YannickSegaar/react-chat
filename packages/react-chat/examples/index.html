@@ -1,8 +1,9 @@
-<!-- THIS IS AN EXAMPLE PAGE AND SHOULD NOT BE USED OUTSIDE OF DEVELOPMENT -->
-<!doctype html>
-<html>
-  <head>
-    <title>Example Page</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Tours Hawaii Chat</title>
     <style>
       body {
         background-color: #f9f9f9;
@@ -15,9 +16,8 @@
         left: 0;
       }
     </style>
-  </head>
-
-  <body>
+</head>
+<body>
     <div id="flat-chat"></div>
     <div id="voiceflow-chat-frame"></div>
 
@@ -35,9 +35,11 @@
           },
           autostart: true,
           allowDangerousHTML: false,
+        }).then(() => {
+          console.log('Voiceflow chat widget loaded');
         });
       }
     </script>
     <script type="module" src="../src/index.tsx" onload="_vf_load()"></script>
-  </body>
+</body>
 </html>

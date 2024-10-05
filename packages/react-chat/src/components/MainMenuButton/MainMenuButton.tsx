@@ -3,7 +3,6 @@ import { MainMenuButtonContainer, DropUpMenu } from './styled';
 import Icon from '@/components/Icon';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 
-// Define the prop types for MainMenuButton
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
 }
@@ -25,7 +24,21 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
 
   const handleConfirm = () => {
     if (selectedAction) {
-      sendCustomActionTrace(selectedAction); // This sends the custom action trace
+      const tracePayload = {
+        type: 'custom_trace',
+        payload: {
+          customData: selectedAction
+        }
+      };
+
+      console.log('Sending custom trace:', tracePayload);
+
+      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+        window.voiceflow.chat.interact(tracePayload);
+      } else {
+        console.error('Voiceflow chat is not properly initialized');
+      }
+      onActionSelect(selectedAction);
     }
     setIsDialogOpen(false);
   };
@@ -33,23 +46,6 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
   const handleCancel = () => {
     setIsDialogOpen(false);
     setSelectedAction(null);
-  };
-
-  // Function to send custom action trace
-  const sendCustomActionTrace = (action: string) => {
-    const customTrace = {
-      type: 'customAction', // Ensure this matches your Voiceflow custom action type
-      payload: {
-        action, // This is the action identifier, e.g., 'exploreTours'
-        status: 'success', // Include this to indicate confirmation
-      },
-    };
-
-    if (window.voiceflow && window.voiceflow.chat) {
-      window.voiceflow.chat.interact(customTrace); // Directly pass the trace object here
-    } else {
-      console.error('Voiceflow Web Chat API is not available.');
-    }
   };
 
   return (
@@ -73,7 +69,7 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
           isOpen={isDialogOpen}
           onAccept={handleConfirm}
           onCancel={handleCancel}
-          message={`Do you want to explore ${selectedAction}?`}
+          message={`Do you want to ${selectedAction}?`}
         />
       )}
     </>

@@ -3,10 +3,12 @@ const path = require('path');
 
 // List of directories to process
 const directories = [
-  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Card',
-  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Carousel',
+  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/MainMenuButton',
+  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Modal',
+  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/ConfirmationDialog',
+  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Footer',
 ];
-const outputFile = path.resolve(__dirname, 'Card_Carousel_codes.txt');
+const outputFile = path.resolve(__dirname, 'MainMenu__Modal_ConfirmationDialog_Footer_Claude_codes.txt');
 
 // List of file extensions to include
 const includeExtensions = ['.js', '.jsx', '.ts', '.tsx']; // Include other relevant extensions

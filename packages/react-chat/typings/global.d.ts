@@ -28,5 +28,6 @@ declare global {
     voiceflow?: {
       chat?: VoiceflowChat;
     };
+    sendCustomAction?: (action: string) => void;
   }
 }
