@@ -1,7 +1,6 @@
 import Message from '@/components/Message';
-
 import type { DebugMessageProps } from '../Message/DebugMessage';
-import { Button, Container } from './styled';
+import { StyledButton, TooltipContainer, BubbleArrow } from './styled';
 
 export interface ActionMessageProps extends DebugMessageProps {
   /**
@@ -16,10 +15,11 @@ export interface ActionMessageProps extends DebugMessageProps {
 }
 
 const ActionMessage: React.FC<ActionMessageProps> = ({ label, onClick, children, ...props }) => (
-  <Container withAction={!!label}>
+  <TooltipContainer withAction={!!label} id="tooltip-container">
+    <BubbleArrow />
     <Message.Debug {...props}>{children}</Message.Debug>
-    {label && <Button onClick={onClick}>{label}</Button>}
-  </Container>
+    {label && <StyledButton onClick={onClick}>{label}</StyledButton>}
+  </TooltipContainer>
 );
 
 /**
@@ -28,6 +28,23 @@ const ActionMessage: React.FC<ActionMessageProps> = ({ label, onClick, children,
  * @see {@link https://voiceflow.github.io/react-chat/?path=/story/components-tooltip--left-orientation}
  */
 export default Object.assign(ActionMessage, {
-  Button,
-  Container,
+  Button: StyledButton,
+  Container: TooltipContainer,
 });
+
+// JavaScript to trigger tooltip after chat window opens
+export function triggerTooltip() {
+  setTimeout(() => {
+    const tooltip = document.getElementById('tooltip-container');
+    if (tooltip) {
+      tooltip.style.display = 'block';
+    }
+  }, 1000); // Adjust delay as needed
+}
+
+window.triggerMainMenuTooltip = function (force = false) {
+  const tooltipElement = document.getElementById('tooltip-container');
+  if (tooltipElement && (force || !tooltipElement.classList.contains('dismissed'))) {
+    tooltipElement.style.display = 'block';
+  }
+};
