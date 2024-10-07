@@ -21,14 +21,14 @@ export const StyledButton = styled('button', {
 });
 
 export const TooltipContainer = styled('div', {
-  position: 'fixed', // Make tooltip an overlay
-  bottom: '80px', // Adjust to place it above the MainMenuButton, closer for linking visually
-  left: '40px', // Adjust positioning as needed for alignment with MainMenuButton
+  position: 'fixed',
+  bottom: '150px', // Adjust to move it above the MainMenuButton
+  left: '20px', // Adjust this value to align horizontally with the MainMenuButton
   padding: '10px',
   backgroundColor: '#fff',
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
   borderRadius: '8px',
-  zIndex: 100, // Ensure it appears above other elements
+  zIndex: 100,
   display: 'flex',
   flexDirection: 'column',
 
@@ -40,6 +40,7 @@ export const TooltipContainer = styled('div', {
     },
   },
 });
+
 
 export const BubbleArrow = styled('div', {
   position: 'absolute',

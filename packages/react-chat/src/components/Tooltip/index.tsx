@@ -15,7 +15,7 @@ export interface ActionMessageProps extends DebugMessageProps {
 }
 
 const ActionMessage: React.FC<ActionMessageProps> = ({ label, onClick, children, ...props }) => (
-  <TooltipContainer withAction={!!label} id="tooltip-container">
+  <TooltipContainer withAction={!!label} id="tooltip-container" style={{ display: 'none' }}> {/* Turned off tooltip */}
     <BubbleArrow />
     <Message.Debug {...props}>{children}</Message.Debug>
     {label && <StyledButton onClick={onClick}>{label}</StyledButton>}
@@ -37,7 +37,7 @@ export function triggerTooltip() {
   setTimeout(() => {
     const tooltip = document.getElementById('tooltip-container');
     if (tooltip) {
-      tooltip.style.display = 'block';
+      tooltip.style.display = 'none'; // Turn off tooltip
     }
   }, 1000); // Adjust delay as needed
 }
@@ -45,6 +45,6 @@ export function triggerTooltip() {
 window.triggerMainMenuTooltip = function (force = false) {
   const tooltipElement = document.getElementById('tooltip-container');
   if (tooltipElement && (force || !tooltipElement.classList.contains('dismissed'))) {
-    tooltipElement.style.display = 'block';
+    tooltipElement.style.display = 'none'; // Turn off tooltip
   }
 };
