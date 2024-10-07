@@ -85,5 +85,8 @@
   "volta": {
     "node": "20.12.1",
     "yarn": "3.2.1"
+  },
+  "dependencies": {
+    "react-dismissable-layers": "^0.4.2"
   }
 }

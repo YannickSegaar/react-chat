@@ -4,7 +4,7 @@ import type { RuntimeAction } from '@voiceflow/sdk-runtime';
 import type { LoadConfig } from '@/dtos/ChatConfig.dto';
 
 declare global {
-  export const __USE_SHADOW_ROOT__: boolean;
+  export const USE_SHADOW_ROOT: boolean;
 
   interface VoiceflowChat {
     load: (config: LoadConfig) => Promise<void>;
@@ -29,5 +29,6 @@ declare global {
       chat?: VoiceflowChat;
     };
     sendCustomAction?: (action: string) => void;
+    triggerMainMenuTooltip?: () => void; // Add this line
   }
 }

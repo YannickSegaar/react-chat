@@ -17414,6 +17414,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dismissable-layers@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "react-dismissable-layers@npm:0.4.2"
+  peerDependencies:
+    react: ^16.0.0  || ^17.0.0 || ^18.0.0
+    react-dom: ^16.0.0  || ^17.0.0 || ^18.0.0
+  checksum: 24cc0447263ce44d3874e6f53e6529357ac5ceebbae164ce44190f466619d42069da6d4a2545744fdaeb77c41a51e0921e50a9e4303377eee8d33ed737f3e377
+  languageName: node
+  linkType: hard
+
 "react-docgen-typescript@npm:^2.2.2":
   version: 2.2.2
   resolution: "react-docgen-typescript@npm:2.2.2"
@@ -18652,6 +18662,7 @@ __metadata:
     lint-staged: 15.2.2
     npm-run-all: 4.1.5
     prettier: 3.2.5
+    react-dismissable-layers: ^0.4.2
     rimraf: 5.0.5
     source-map-support: 0.5.21
     tsc-alias: 1.8.8

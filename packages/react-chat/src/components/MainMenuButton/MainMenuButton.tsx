@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainMenuButtonContainer, DropUpMenu } from './styled';
 import Icon from '@/components/Icon';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
+import Tooltip from '@/components/Tooltip';
 
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
+  showTooltip: boolean;
+  onTooltipDismiss: () => void;
 }
 
-const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
+const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect, showTooltip, onTooltipDismiss }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -47,6 +50,8 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
     setSelectedAction(null);
   };
 
+  console.log('MainMenuButton rendering, showTooltip:', showTooltip);
+
   return (
     <>
       <MainMenuButtonContainer>
@@ -55,6 +60,14 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
           onClick={handleMenuToggle}
           css={{ cursor: 'pointer', width: '24px', height: '24px' }}
         />
+        {showTooltip && (
+          <Tooltip
+            label="Got it!"
+            onClick={onTooltipDismiss}
+          >
+            Use the main menu to navigate through different options
+          </Tooltip>
+        )}
         {isOpen && (
           <DropUpMenu>
             {menuOptions.map((option) => (

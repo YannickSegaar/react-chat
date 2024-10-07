@@ -2,16 +2,19 @@
 
 // File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/MainMenuButton/MainMenuButton.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainMenuButtonContainer, DropUpMenu } from './styled';
 import Icon from '@/components/Icon';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
+import Tooltip from '@/components/Tooltip';
 
 interface MainMenuButtonProps {
   onActionSelect: (action: string) => void;
+  showTooltip: boolean;
+  onTooltipDismiss: () => void;
 }
 
-const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
+const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect, showTooltip, onTooltipDismiss }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -51,6 +54,8 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
     setSelectedAction(null);
   };
 
+  console.log('MainMenuButton rendering, showTooltip:', showTooltip);
+
   return (
     <>
       <MainMenuButtonContainer>
@@ -59,6 +64,14 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect }) => {
           onClick={handleMenuToggle}
           css={{ cursor: 'pointer', width: '24px', height: '24px' }}
         />
+        {showTooltip && (
+          <Tooltip
+            label="Got it!"
+            onClick={onTooltipDismiss}
+          >
+            Use the main menu to navigate through different options
+          </Tooltip>
+        )}
         {isOpen && (
           <DropUpMenu>
             {menuOptions.map((option) => (
@@ -395,7 +408,7 @@ export const WithWatermark: Story = {
 
 // File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Footer/index.tsx
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@/components/Button';
 import ChatInput from '@/components/ChatInput';
 import MainMenuButton from '@/components/MainMenuButton';
@@ -421,6 +434,33 @@ const Footer: React.FC<FooterProps> = ({
   speechRecognition,
 }) => {
   const [message, setMessage] = useState('');
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  useEffect(() => {
+    console.log('Footer component mounted');
+    window.triggerMainMenuTooltip = () => {
+      console.log('triggerMainMenuTooltip called');
+      // Remove the localStorage check for testing
+      console.log('Setting showTooltip to true');
+      setShowTooltip(true);
+    };
+
+    return () => {
+      if (window.triggerMainMenuTooltip) {
+        delete window.triggerMainMenuTooltip;
+      }
+    };
+  }, []);
+
+  window.triggerMainMenuTooltip = (force = false) => {
+    console.log('triggerMainMenuTooltip called, force:', force);
+    const tooltipShown = localStorage.getItem('tooltipShown');
+    console.log('tooltipShown in localStorage:', tooltipShown);
+    if (!tooltipShown || force) {
+      console.log('Setting showTooltip to true');
+      setShowTooltip(true);
+    }
+  };
 
   const handleSend = async (message: string): Promise<void> => {
     if (!message || disableSend) return;
@@ -428,8 +468,17 @@ const Footer: React.FC<FooterProps> = ({
   };
 
   const handleMenuActionSelect = (action: string) => {
-    // This function is no longer needed as the MainMenuButton now handles the interaction directly
+    // Handle the action if needed
+    console.log('Menu action selected:', action);
   };
+
+  const handleTooltipDismiss = () => {
+    console.log('Tooltip dismissed');
+    setShowTooltip(false);
+    localStorage.setItem('tooltipShown', 'true');
+  };
+
+  console.log('Rendering Footer, showTooltip:', showTooltip);
 
   return (
     <Container>
@@ -450,7 +499,11 @@ const Footer: React.FC<FooterProps> = ({
       ) : (
         <>
           <InteractionWrapper>
-            <MainMenuButton onActionSelect={() => {}} /> {/* We don't need to pass a function here anymore */}
+            <MainMenuButton
+              onActionSelect={handleMenuActionSelect}
+              showTooltip={showTooltip}
+              onTooltipDismiss={handleTooltipDismiss}
+            />
             <InputWrapper>
               <ChatInput
                 value={message}

@@ -105,9 +105,21 @@
             );
           }, 4500);
 
-          // Delay opening the chat window
+          // Delay opening the chat window and triggering the tooltip
           setTimeout(function() {
             window.voiceflow.chat.open();
+            console.log('Chat window opened');
+            
+            // Add a delay before triggering the tooltip
+            setTimeout(function() {
+              console.log('Attempting to trigger tooltip');
+              if (window.triggerMainMenuTooltip) {
+                // Force the tooltip to show by passing true as an argument
+                window.triggerMainMenuTooltip(true);
+              } else {
+                console.log('triggerMainMenuTooltip not found on window');
+              }
+            }, 1000); // 1 second delay
           }, 6500);
         });
       }
