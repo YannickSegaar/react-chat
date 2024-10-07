@@ -12,6 +12,7 @@ export interface FooterProps {
   onStart?: (() => Promise<void>) | undefined;
   onSend?: ((message: string) => Promise<void>) | undefined;
   speechRecognition?: any;
+  onActionSelect: (action: string) => void;
 }
 
 const Footer: React.FC<FooterProps> = ({
@@ -22,53 +23,27 @@ const Footer: React.FC<FooterProps> = ({
   onSend,
   audioInterface,
   speechRecognition,
+  onActionSelect,
 }) => {
   const [message, setMessage] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
-    console.log('Footer component mounted');
-    window.triggerMainMenuTooltip = () => {
-      console.log('triggerMainMenuTooltip called');
-      // Remove the localStorage check for testing
-      console.log('Setting showTooltip to true');
-      setShowTooltip(true);
-    };
-
-    return () => {
-      if (window.triggerMainMenuTooltip) {
-        delete window.triggerMainMenuTooltip;
-      }
-    };
-  }, []);
-
-  window.triggerMainMenuTooltip = (force = false) => {
-    console.log('triggerMainMenuTooltip called, force:', force);
     const tooltipShown = localStorage.getItem('tooltipShown');
-    console.log('tooltipShown in localStorage:', tooltipShown);
-    if (!tooltipShown || force) {
-      console.log('Setting showTooltip to true');
+    if (!tooltipShown) {
       setShowTooltip(true);
     }
-  };
+  }, []);
 
   const handleSend = async (message: string): Promise<void> => {
     if (!message || disableSend) return;
     await onSend?.(message);
   };
 
-  const handleMenuActionSelect = (action: string) => {
-    // Handle the action if needed
-    console.log('Menu action selected:', action);
-  };
-
   const handleTooltipDismiss = () => {
-    console.log('Tooltip dismissed');
     setShowTooltip(false);
     localStorage.setItem('tooltipShown', 'true');
   };
-
-  console.log('Rendering Footer, showTooltip:', showTooltip);
 
   return (
     <Container>
@@ -90,7 +65,7 @@ const Footer: React.FC<FooterProps> = ({
         <>
           <InteractionWrapper>
             <MainMenuButton
-              onActionSelect={handleMenuActionSelect}
+              onActionSelect={onActionSelect}
               showTooltip={showTooltip}
               onTooltipDismiss={handleTooltipDismiss}
             />

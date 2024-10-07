@@ -174,6 +174,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, title, onClose, onConfirm, childr
 
 export default Modal;
 
+
 // File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Modal/index.tsx
 
 export { default } from './Modal';
@@ -292,6 +293,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({ isOpen, onAccep
 
 export default ConfirmationDialog;
 
+
 // File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/ConfirmationDialog/index.tsx
 
 export { default } from './ConfirmationDialog';
@@ -357,6 +359,7 @@ export const Actions = styled(tag('div', 'actions'), {
     },
   },
 });
+
 
 // File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Footer/Footer.story.tsx
 

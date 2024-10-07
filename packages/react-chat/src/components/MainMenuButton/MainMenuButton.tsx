@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MainMenuButtonContainer, DropUpMenu } from './styled';
 import Icon from '@/components/Icon';
-import ConfirmationDialog from '@/components/ConfirmationDialog';
 import Tooltip from '@/components/Tooltip';
 
 interface MainMenuButtonProps {
@@ -12,8 +11,6 @@ interface MainMenuButtonProps {
 
 const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect, showTooltip, onTooltipDismiss }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const menuOptions = [
     'MainMenu_Intent_A',
@@ -34,60 +31,36 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect, showToo
 
   const handleActionClick = (action: string) => {
     setIsOpen(false);
-    setSelectedAction(action);
-    setIsDialogOpen(true);
-  };
-
-  const handleConfirm = () => {
-    if (selectedAction) {
-      onActionSelect(selectedAction);
-    }
-    setIsDialogOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsDialogOpen(false);
-    setSelectedAction(null);
+    onActionSelect(action);
   };
 
   console.log('MainMenuButton rendering, showTooltip:', showTooltip);
 
   return (
-    <>
-      <MainMenuButtonContainer>
-        <Icon
-          svg="plusCircle"
-          onClick={handleMenuToggle}
-          css={{ cursor: 'pointer', width: '24px', height: '24px' }}
-        />
-        {showTooltip && (
-          <Tooltip
-            label="Got it!"
-            onClick={onTooltipDismiss}
-          >
-            Use the main menu to navigate through different options
-          </Tooltip>
-        )}
-        {isOpen && (
-          <DropUpMenu>
-            {menuOptions.map((option) => (
-              <button key={option} onClick={() => handleActionClick(option)}>
-                {option}
-              </button>
-            ))}
-          </DropUpMenu>
-        )}
-      </MainMenuButtonContainer>
-      {isDialogOpen && (
-        <ConfirmationDialog
-          isOpen={isDialogOpen}
-          onAccept={handleConfirm}
-          onCancel={handleCancel}
-          message={`Do you want to trigger ${selectedAction}?`}
-          selectedAction={selectedAction}
-        />
+    <MainMenuButtonContainer>
+      <Icon
+        svg="plusCircle"
+        onClick={handleMenuToggle}
+        css={{ cursor: 'pointer', width: '24px', height: '24px' }}
+      />
+      {showTooltip && (
+        <Tooltip
+          label="Got it!"
+          onClick={onTooltipDismiss}
+        >
+          Use the main menu to navigate through different options
+        </Tooltip>
       )}
-    </>
+      {isOpen && (
+        <DropUpMenu>
+          {menuOptions.map((option) => (
+            <button key={option} onClick={() => handleActionClick(option)}>
+              {option}
+            </button>
+          ))}
+        </DropUpMenu>
+      )}
+    </MainMenuButtonContainer>
   );
 };
 

@@ -1,6 +1,10 @@
 import React from 'react';
 import { Overlay, Container, Content, Actions } from './styled';
 import Button from '@/components/Button';
+import { styled } from '@/styles';
+
+// Import your chat's base styling component
+import { Container as ChatContainer } from '@/components/Chat/styled';
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -9,6 +13,14 @@ interface ConfirmationDialogProps {
   message: string;
   selectedAction: string | null;
 }
+
+const StyledChatContainer = styled(ChatContainer, {
+  // Override any styles that might interfere with the modal
+  position: 'static',
+  width: 'auto',
+  height: 'auto',
+  backgroundColor: 'transparent',
+});
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({ isOpen, onAccept, onCancel, message, selectedAction }) => {
   if (!isOpen) return null;
@@ -34,17 +46,19 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({ isOpen, onAccep
   };
 
   return (
-    <Overlay>
-      <Container>
-        <Content>
-          <p>{message}</p>
-        </Content>
-        <Actions>
-          <Button.Primary onClick={handleConfirm}>Yes</Button.Primary>
-          <Button type="subtle" onClick={onCancel}>No</Button>
-        </Actions>
-      </Container>
-    </Overlay>
+    <StyledChatContainer>
+      <Overlay>
+        <Container>
+          <Content>
+            <p>{message}</p>
+          </Content>
+          <Actions>
+            <Button.Primary onClick={handleConfirm}>Yes</Button.Primary>
+            <Button type="subtle" onClick={onCancel}>No</Button>
+          </Actions>
+        </Container>
+      </Overlay>
+    </StyledChatContainer>
   );
 };
 

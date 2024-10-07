@@ -16,7 +16,7 @@ import { chain } from '@/utils/functional';
 import { useTimestamp } from './hooks';
 import { Container, Dialog, Overlay, SessionTime, Spacer, Status } from './styled';
 
-export interface ChatProps extends HeaderProps, AssistantInfoProps, FooterProps, React.PropsWithChildren<unknown> {
+export interface ChatProps extends HeaderProps, AssistantInfoProps, Omit<FooterProps, 'onActionSelect'>, React.PropsWithChildren<unknown> {
   /**
    * A short description of the assistant to help frame the conversation.
    */
@@ -51,6 +51,11 @@ export interface ChatProps extends HeaderProps, AssistantInfoProps, FooterProps,
    * A callback that is executed when the conversation ends.
    */
   onEnd?: React.MouseEventHandler<HTMLButtonElement>;
+
+  /**
+   * A callback that is executed when an action is selected.
+   */
+  onActionSelect: (action: string) => void;
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -68,6 +73,7 @@ const Chat: React.FC<ChatProps> = ({
   onSend,
   children,
   audioInterface,
+  onActionSelect,
 }) => {
   const timestamp = useTimestamp(startTime);
   const dialogRef = useRef<HTMLElement>(null);
@@ -131,6 +137,7 @@ const Chat: React.FC<ChatProps> = ({
         disableSend={state.indicator}
         audioInterface={audioInterface}
         speechRecognition={config.speechRecognition}
+        onActionSelect={onActionSelect}
       />
       <Overlay />
       <Prompt
@@ -141,11 +148,6 @@ const Chat: React.FC<ChatProps> = ({
   );
 };
 
-/**
- * A full chat dialog with header, footer, overlay and auto-scrolling content.
- *
- * @see {@link https://voiceflow.github.io/react-chat/?path=/story/templates-chat--empty}
- */
 export default Object.assign(memo(Chat), {
   Container,
   Dialog,

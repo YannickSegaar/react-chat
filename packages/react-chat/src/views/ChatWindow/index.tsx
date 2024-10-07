@@ -1,16 +1,17 @@
 import '../../styles.css';
 
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import * as R from 'remeda';
 import { match } from 'ts-pattern';
 
 import { Chat, SystemResponse, UserResponse } from '@/components';
+import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { RuntimeStateAPIContext, RuntimeStateContext } from '@/contexts/RuntimeContext';
 import type { FeedbackName } from '@/contexts/RuntimeContext/useRuntimeAPI';
 import type { UserTurnProps } from '@/types';
 import { SessionStatus, TurnType } from '@/types';
 
-import { ChatWindowContainer } from './styled';
+import { ChatWindowContainer, DialogOverlay } from './styled';
 
 export interface ChatWindowProps {
   className?: string;
@@ -21,11 +22,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
   const state = useContext(RuntimeStateContext);
   const { assistant, config } = runtime;
 
-  // emitters
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+
   const closeAndEnd = useCallback((): void => {
     runtime.setStatus(SessionStatus.ENDED);
     runtime.close();
-  }, []);
+  }, [runtime]);
 
   const getPreviousUserTurn = useCallback(
     (turnIndex: number): UserTurnProps | null => {
@@ -34,6 +37,36 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
     },
     [state.session.turns]
   );
+
+  const handleActionSelect = (action: string) => {
+    setSelectedAction(action);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (selectedAction) {
+      const tracePayload = {
+        type: 'intent',
+        payload: {
+          intent: {
+            name: selectedAction
+          }
+        }
+      };
+
+      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+        window.voiceflow.chat.interact(tracePayload);
+      } else {
+        console.error('Voiceflow chat is not properly initialized');
+      }
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsDialogOpen(false);
+    setSelectedAction(null);
+  };
 
   return (
     <ChatWindowContainer className={className}>
@@ -51,6 +84,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
         onSend={runtime.reply}
         onMinimize={runtime.close}
         audioInterface={assistant.audioInterface}
+        onActionSelect={handleActionSelect}
       >
         {state.session.turns.map((turn, turnIndex) =>
           match(turn)
@@ -76,6 +110,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
         )}
         {state.indicator && <SystemResponse.Indicator avatar={assistant.avatar} />}
       </Chat>
+      <DialogOverlay isOpen={isDialogOpen}>
+        <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onAccept={handleConfirm}
+          onCancel={handleCancel}
+          message={`Do you want to trigger ${selectedAction}?`}
+          selectedAction={selectedAction}
+        />
+      </DialogOverlay>
     </ChatWindowContainer>
   );
 };

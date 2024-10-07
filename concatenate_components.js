@@ -3,12 +3,9 @@ const path = require('path');
 
 // List of directories to process
 const directories = [
-  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/MainMenuButton',
-  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Modal',
-  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/ConfirmationDialog',
-  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Footer',
+  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Chat',
 ];
-const outputFile = path.resolve(__dirname, 'MainMenu__Modal_ConfirmationDialog_Footer_Claude_codes.txt');
+const outputFile = path.resolve(__dirname, 'Chat_Component_codes.txt');
 
 // List of file extensions to include
 const includeExtensions = ['.js', '.jsx', '.ts', '.tsx']; // Include other relevant extensions

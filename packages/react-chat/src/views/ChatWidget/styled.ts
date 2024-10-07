@@ -9,6 +9,7 @@ const MAX_CHAT_HEIGHT = 800;
 const tag = tagFactory(ClassName.WIDGET);
 
 export const ChatContainer = styled(tag('div', 'chat'), {
+  position: 'relative', // Add this line
   width: CHAT_WIDTH,
   overflow: 'hidden',
   borderRadius: '$2',
@@ -17,7 +18,7 @@ export const ChatContainer = styled(tag('div', 'chat'), {
   maxHeight: MAX_CHAT_HEIGHT,
 
   '@mobile': {
-    position: 'fixed',
+    position: 'fixed', // This will override the 'relative' on mobile
     height: 'unset',
     maxHeight: 'unset',
     width: 'unset',
