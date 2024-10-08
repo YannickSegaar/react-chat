@@ -19,7 +19,7 @@ export const Overlay = styled(tag('div', 'overlay'), {
 });
 
 export const Container = styled(tag('div', 'container'), {
-  width: '90%',
+  width: '70%',
   maxWidth: '400px', // Limit the width to a maximum of 400px
   padding: '$4',
   borderRadius: '$1',
@@ -42,17 +42,23 @@ export const Actions = styled(tag('div', 'actions'), {
   display: 'flex',
   justifyContent: 'space-between',
   width: '100%',
-  marginTop: '$2',
+  gap: '12px',
 
   [`& ${Button.Container}`]: {
     flex: 1,
-    margin: '0 $1',
+    padding: '12px 0',
+    fontSize: '16px',
+    fontWeight: 600,
+    borderRadius: '8px',
 
     '&:first-of-type': {
-      marginLeft: 0,
+      backgroundColor: '#0f2f5c',
+      color: '#fff',
     },
     '&:last-of-type': {
-      marginRight: 0,
+      backgroundColor: '#f0f0f0',
+      color: '#333',
+      border: 'var(--no-button-border-width, 1px) solid var(--no-button-border-color, #333)',
     },
   },
 });

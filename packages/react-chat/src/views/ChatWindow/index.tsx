@@ -43,24 +43,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
     setIsDialogOpen(true);
   };
 
+  const triggerIntent = (action: string) => {
+    const tracePayload = {
+      type: 'intent',
+      payload: {
+        intent: {
+          name: action
+        }
+      }
+    };
+
+    if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+      window.voiceflow.chat.interact(tracePayload);
+    } else {
+      console.error('Voiceflow chat is not properly initialized');
+    }
+  };
+
   const handleConfirm = () => {
     if (selectedAction) {
-      const tracePayload = {
-        type: 'intent',
-        payload: {
-          intent: {
-            name: selectedAction
-          }
-        }
-      };
-
-      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
-        window.voiceflow.chat.interact(tracePayload);
-      } else {
-        console.error('Voiceflow chat is not properly initialized');
-      }
+      triggerIntent(selectedAction);
     }
     setIsDialogOpen(false);
+    setSelectedAction(null);
   };
 
   const handleCancel = () => {
