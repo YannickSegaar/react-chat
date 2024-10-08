@@ -38,6 +38,7 @@ const Footer: React.FC<FooterProps> = ({
   const handleSend = async (message: string): Promise<void> => {
     if (!message || disableSend) return;
     await onSend?.(message);
+    setMessage(''); // Clear the input field after sending the message
   };
 
   const handleTooltipDismiss = () => {
