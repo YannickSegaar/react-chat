@@ -19,10 +19,7 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect, showToo
     'Game Quiz - Demo',
     'Support Ticket - Demo',
     'Feedback Collection - Demo',
-    'Cancellation/Rescheduling - Demo',
-    'MainMenu_Intent_H',
-    'MainMenu_Intent_I',
-    'MainMenu_Intent_J'
+    'Cancellation/Rescheduling - Demo'
   ];
 
   const handleMenuToggle = () => {
