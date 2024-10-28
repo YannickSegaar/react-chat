@@ -13,13 +13,13 @@ const MainMenuButton: React.FC<MainMenuButtonProps> = ({ onActionSelect, showToo
   const [isOpen, setIsOpen] = useState(false);
 
   const menuOptions = [
-    'MainMenu_Intent_A',
-    'MainMenu_Intent_B',
-    'MainMenu_Intent_C',
-    'MainMenu_Intent_D',
-    'MainMenu_Intent_E',
-    'MainMenu_Intent_F',
-    'MainMenu_Intent_G',
+    'Home - Demo',
+    'Tour Offerings - Demo',
+    'Get Directions - Demo',
+    'Game Quiz - Demo',
+    'Support Ticket - Demo',
+    'Feedback Collection - Demo',
+    'Cancellation/Rescheduling - Demo',
     'MainMenu_Intent_H',
     'MainMenu_Intent_I',
     'MainMenu_Intent_J'
