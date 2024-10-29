@@ -25,6 +25,13 @@ export const Description = styled(tag('p', 'description'), {
   wordBreak: 'break-word',
 });
 
+export const StatusContainer = styled('div', {
+  marginTop: '16px',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
 export const Container = styled(tag('div'), {
   display: 'flex',
   flexDirection: 'column',
@@ -38,5 +45,9 @@ export const Container = styled(tag('div'), {
 
   [`& ${Title}`]: {
     marginBottom: 8,
+  },
+
+  [`& ${Description}`]: {
+    marginBottom: 4,
   },
 });

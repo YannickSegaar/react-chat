@@ -2,7 +2,7 @@ import Avatar from '@/components/Avatar';
 import type { IconProps } from '@/components/Icon';
 import Icon from '@/components/Icon';
 
-import { Button, Container, Title, StatusDot } from './styled';
+import { Button, Container, Title } from './styled';
 
 export interface HeaderActionProps {
   /**
@@ -39,7 +39,6 @@ const Header: React.FC<HeaderProps> = ({ title, image, actions = [] }) => (
   <Container>
     <Avatar avatar={image} />
     <Title>{title}</Title>
-    <StatusDot />
     {actions.map(({ svg, onClick }, index) => (
       <Button onClick={onClick} key={index}>
         <Icon svg={svg} />

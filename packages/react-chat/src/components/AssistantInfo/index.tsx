@@ -1,6 +1,6 @@
 import Avatar from '@/components/Avatar';
-
-import { Container, Description, Title } from './styled';
+import StatusIndicator from '@/components/StatusIndicator';
+import { Container, Description, Title, StatusContainer } from './styled';
 
 export interface AssistantInfoProps {
   /**
@@ -24,6 +24,9 @@ const AssistantInfo: React.FC<AssistantInfoProps> = ({ title, description, avata
     <Avatar size="large" avatar={avatar} />
     <Title>{title}</Title>
     <Description>{description}</Description>
+    <StatusContainer>
+      <StatusIndicator />
+    </StatusContainer>
   </Container>
 );
 
