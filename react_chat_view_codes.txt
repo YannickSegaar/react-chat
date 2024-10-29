@@ -1,0 +1,389 @@
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatEmbed/index.tsx
+
+import { useContext, useEffect } from 'react';
+
+import { RuntimeStateAPIContext } from '@/contexts';
+import { useChatAPI, useTheme } from '@/hooks';
+import { useResolveAssistantStyleSheet } from '@/utils/stylesheet';
+
+import ChatWindow from '../ChatWindow';
+
+interface ChatEmbedProps extends React.PropsWithChildren {
+  shadowRoot: ShadowRoot;
+  chatAPI: VoiceflowChat | undefined;
+  ready?: () => void;
+}
+
+const ChatEmbed: React.FC<ChatEmbedProps> = ({ shadowRoot, chatAPI, ready }) => {
+  const { assistant, interact, open } = useContext(RuntimeStateAPIContext);
+  const theme = useTheme(assistant);
+
+  const isStyleSheetResolved = useResolveAssistantStyleSheet(assistant, shadowRoot);
+
+  useChatAPI(
+    chatAPI,
+    () => {
+      console.info('Methods open, close, hide, show, proactive.clear, proactive.push have no effect in this mode.');
+
+      return { interact };
+    },
+    ready
+  );
+
+  useEffect(() => {
+    // "open" the embedded chat window to trigger launch
+    open();
+  }, []);
+
+  if (!isStyleSheetResolved) return null;
+  return <ChatWindow className={theme} />;
+};
+
+export default ChatEmbed;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWidget/index.tsx
+
+import type { Trace } from '@voiceflow/base-types';
+import React, { useContext, useMemo, useState } from 'react';
+
+import Launcher from '@/components/Launcher';
+import Proactive from '@/components/Proactive';
+import { RuntimeStateAPIContext, RuntimeStateContext } from '@/contexts';
+import { useChatAPI, useTheme } from '@/hooks';
+import { useResolveAssistantStyleSheet } from '@/utils/stylesheet';
+import ChatWindow from '@/views/ChatWindow';
+
+import { ChatContainer, Container, LauncherContainer } from './styled';
+
+interface ChatWidgetProps extends React.PropsWithChildren {
+  shadowRoot?: ShadowRoot;
+  chatAPI: VoiceflowChat | undefined;
+  ready?: () => void;
+}
+
+const ChatWidget: React.FC<ChatWidgetProps> = ({ shadowRoot, chatAPI, ready }) => {
+  const { assistant, open, close, interact } = useContext(RuntimeStateAPIContext);
+  const { isOpen } = useContext(RuntimeStateContext);
+
+  /** initialization */
+  const [isHidden, setHidden] = useState(false);
+  const [proactiveMessages, setProactiveMessages] = useState<Trace.AnyTrace[]>([]);
+  const isMobile = useMemo(() => window.matchMedia('(max-width: 768px)').matches, []);
+
+  const theme = useTheme(assistant);
+
+  useChatAPI(
+    chatAPI,
+    () => ({
+      open,
+      close,
+      hide: () => setHidden(true),
+      show: () => setHidden(false),
+      interact,
+      proactive: {
+        clear: () => setProactiveMessages([]),
+        push: (...messages: Trace.AnyTrace[]) => setProactiveMessages((prev) => [...prev, ...messages]),
+      },
+    }),
+    ready
+  );
+
+  const side = assistant.position;
+  const position = { bottom: assistant.spacing.bottom, [side]: assistant.spacing.side };
+
+  const isStyleSheetResolved = useResolveAssistantStyleSheet(assistant, shadowRoot);
+
+  if (!isStyleSheetResolved) return null;
+
+  return (
+    <Container withChat={isOpen} isHidden={isHidden} className={theme}>
+      <LauncherContainer style={position}>
+        <Proactive side={side} messages={proactiveMessages} />
+        <Launcher onClick={open} image={assistant.launcher} />
+      </LauncherContainer>
+      <ChatContainer style={isMobile ? {} : position}>
+        <ChatWindow />
+      </ChatContainer>
+    </Container>
+  );
+};
+
+export default Object.assign(ChatWidget, {
+  Launcher,
+  Container,
+  ChatContainer,
+  LauncherContainer,
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWidget/styled.ts
+
+import { ClassName } from '@/constants';
+import { tagFactory } from '@/hocs';
+import type { CSS } from '@/styles';
+import { styled } from '@/styles';
+
+const CHAT_WIDTH = 380;
+const MAX_CHAT_HEIGHT = 800;
+
+const tag = tagFactory(ClassName.WIDGET);
+
+export const ChatContainer = styled(tag('div', 'chat'), {
+  position: 'relative', // Add this line
+  width: CHAT_WIDTH,
+  overflow: 'hidden',
+  borderRadius: '$2',
+  boxShadow: '0 2px 48px rgba(19,33,68,0.16), 0 0 0 1px $shadow4',
+  height: '90%',
+  maxHeight: MAX_CHAT_HEIGHT,
+
+  '@mobile': {
+    position: 'fixed', // This will override the 'relative' on mobile
+    height: 'unset',
+    maxHeight: 'unset',
+    width: 'unset',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: 0,
+    boxShadow: 'none',
+  },
+});
+
+export const LauncherContainer = styled(tag('div', 'launcher'), {});
+
+const animateInStyles: CSS = {
+  opacity: 1,
+  pointerEvents: 'auto',
+  transform: 'translateY(0%)',
+  transition: 'transform 300ms cubic-bezier(0, 0.95, 0.1, 1), opacity 150ms linear',
+};
+
+const animateOutStyles: CSS = {
+  opacity: 0,
+  pointerEvents: 'none',
+  transform: 'translateY(100%)',
+  transition: 'transform 300ms cubic-bezier(0.85, 0, 0.6, 1), opacity 150ms linear',
+};
+
+export const Container = styled(tag('div'), {
+  position: 'fixed',
+  inset: 0,
+  '-webkit-font-smoothing': 'antialiased',
+  '-moz-osx-font-smoothing': 'grayscale',
+  pointerEvents: 'none',
+  zIndex: 10000,
+
+  [`
+    & > ${LauncherContainer},
+    & > ${ChatContainer}
+  `]: {
+    position: 'absolute',
+  },
+
+  variants: {
+    withChat: {
+      true: {
+        [`& > ${ChatContainer}`]: {
+          ...animateInStyles,
+        },
+        [`& > ${LauncherContainer}`]: {
+          ...animateOutStyles,
+        },
+      },
+      false: {
+        [`& > ${ChatContainer}`]: {
+          ...animateOutStyles,
+        },
+        [`& > ${LauncherContainer}`]: {
+          ...animateInStyles,
+        },
+      },
+    },
+    isHidden: {
+      true: {
+        display: 'none',
+      },
+    },
+  },
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWindow/index.tsx
+
+import '../../styles.css';
+
+import React, { useCallback, useContext, useState } from 'react';
+import * as R from 'remeda';
+import { match } from 'ts-pattern';
+
+import { Chat, SystemResponse, UserResponse } from '@/components';
+import ConfirmationDialog from '@/components/ConfirmationDialog';
+import { RuntimeStateAPIContext, RuntimeStateContext } from '@/contexts/RuntimeContext';
+import type { FeedbackName } from '@/contexts/RuntimeContext/useRuntimeAPI';
+import type { UserTurnProps } from '@/types';
+import { SessionStatus, TurnType } from '@/types';
+
+import { ChatWindowContainer, DialogOverlay } from './styled';
+
+export interface ChatWindowProps {
+  className?: string;
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
+  const runtime = useContext(RuntimeStateAPIContext);
+  const state = useContext(RuntimeStateContext);
+  const { assistant, config } = runtime;
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+
+  const closeAndEnd = useCallback((): void => {
+    runtime.setStatus(SessionStatus.ENDED);
+    runtime.close();
+  }, [runtime]);
+
+  const getPreviousUserTurn = useCallback(
+    (turnIndex: number): UserTurnProps | null => {
+      const turn = state.session.turns[turnIndex - 1];
+      return turn?.type === TurnType.USER ? turn : null;
+    },
+    [state.session.turns]
+  );
+
+  const handleActionSelect = (action: string) => {
+    setSelectedAction(action);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (selectedAction) {
+      const tracePayload = {
+        type: 'intent',
+        payload: {
+          intent: {
+            name: selectedAction
+          }
+        }
+      };
+
+      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+        window.voiceflow.chat.interact(tracePayload);
+      } else {
+        console.error('Voiceflow chat is not properly initialized');
+      }
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsDialogOpen(false);
+    setSelectedAction(null);
+  };
+
+  return (
+    <ChatWindowContainer className={className}>
+      <Chat
+        title={assistant.title}
+        description={assistant.description}
+        image={assistant.image}
+        avatar={assistant.avatar}
+        withWatermark={assistant.watermark}
+        startTime={state.session.startTime}
+        hasEnded={runtime.isStatus(SessionStatus.ENDED)}
+        isLoading={runtime.isStatus(SessionStatus.IDLE) && state.session.turns.length === 0 && config.autostart}
+        onStart={runtime.launch}
+        onEnd={closeAndEnd}
+        onSend={runtime.reply}
+        onMinimize={runtime.close}
+        audioInterface={assistant.audioInterface}
+        onActionSelect={handleActionSelect}
+      >
+        {state.session.turns.map((turn, turnIndex) =>
+          match(turn)
+            .with({ type: TurnType.USER }, ({ id, ...props }) => <UserResponse {...R.omit(props, ['type'])} key={id} />)
+            .with({ type: TurnType.SYSTEM }, ({ id, ...props }) => (
+              <SystemResponse
+                key={id}
+                {...R.omit(props, ['type'])}
+                feedback={
+                  assistant.feedback
+                    ? {
+                        onClick: (feedback: FeedbackName) => {
+                          runtime.feedback(feedback, props.messages, getPreviousUserTurn(turnIndex));
+                        },
+                      }
+                    : undefined
+                }
+                avatar={assistant.avatar}
+                isLast={turnIndex === state.session.turns.length - 1}
+              />
+            ))
+            .exhaustive()
+        )}
+        {state.indicator && <SystemResponse.Indicator avatar={assistant.avatar} />}
+      </Chat>
+      <DialogOverlay isOpen={isDialogOpen}>
+        <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onAccept={handleConfirm}
+          onCancel={handleCancel}
+          message={`Do you want to trigger ${selectedAction}?`}
+          selectedAction={selectedAction}
+        />
+      </DialogOverlay>
+    </ChatWindowContainer>
+  );
+};
+
+export default Object.assign(ChatWindow, { Container: ChatWindowContainer });
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWindow/styled.ts
+
+import Chat from '@/components/Chat';
+import { styled } from '@/styles';
+
+export const ChatWindowContainer = styled('div', {
+  height: '100%',
+  position: 'relative',
+
+  [`& ${Chat.Container}`]: {
+    height: '100%',
+  },
+});
+
+export const DialogOverlay = styled('div', {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000,
+
+  variants: {
+    isOpen: {
+      true: {
+        opacity: 1,
+        pointerEvents: 'auto',
+      },
+      false: {
+        opacity: 0,
+        pointerEvents: 'none',
+      },
+    },
+  },
+});
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/index.ts
+
+export { default as ChatEmbed } from './ChatEmbed';
+export { default as ChatWidget } from './ChatWidget';
+export { default as ChatWindow } from './ChatWindow';
