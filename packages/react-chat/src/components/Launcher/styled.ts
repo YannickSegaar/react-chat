@@ -1,8 +1,16 @@
+// components/Launcher/styled.ts
 import { ClassName } from '@/constants';
 import { tagFactory } from '@/hocs';
 import { styled } from '@/styles';
 
 const tag = tagFactory(ClassName.LAUNCHER);
+
+export const LauncherContainer = styled('div', {
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end', // Ensures alignment to the right
+});
 
 export const Button = styled(tag('button'), {
   display: 'flex',
@@ -32,4 +40,11 @@ export const Button = styled(tag('button'), {
 
   padding: 0,
   margin: 0,
+});
+
+export const LauncherStatus = styled('div', {
+  position: 'absolute',
+  right: '100%', // Positions it to the left of the launcher button
+  marginRight: '12px', // Adds some space between the status and the button
+  whiteSpace: 'nowrap', // Prevents text wrapping
 });

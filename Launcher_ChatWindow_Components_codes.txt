@@ -1,0 +1,274 @@
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Launcher/Launcher.story.tsx
+
+import type { Meta, StoryObj } from '@storybook/react';
+
+import Launcher from '.';
+
+type Story = StoryObj<typeof Launcher>;
+
+const meta: Meta<typeof Launcher> = {
+  title: 'Components/Launcher',
+  component: Launcher,
+  parameters: {
+    controls: { hideNoControlsWarning: true },
+  },
+};
+
+export default meta;
+
+export const Default: Story = {};
+
+export const IconOverride: Story = {
+  args: {
+    // eslint-disable-next-line no-secrets/no-secrets
+    image: 'https://cm4-production-assets.s3.amazonaws.com/1668625107157-vf-nobg.png',
+  },
+};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Launcher/index.tsx
+
+import type { MouseEventHandler } from 'react';
+import React from 'react';
+
+import launch from './launch.svg';
+import { Button } from './styled';
+
+export interface LauncherProps {
+  /**
+   * An image URL to be rendered as the icon.
+   * Defaults to the "launch" SVG if not provided.
+   */
+  image?: string | undefined;
+
+  /**
+   * A callback that will be executed when the button is clicked.
+   */
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}
+
+const Launcher: React.FC<LauncherProps> = ({ image, onClick }) => {
+  return (
+    <Button onClick={onClick}>
+      <img src={image || launch} alt="launch" />
+    </Button>
+  );
+};
+
+/**
+ * A floating action button used to launch the chat widget.
+ *
+ * @see {@link https://voiceflow.github.io/react-chat/?path=/story/components-launcher--default}
+ */
+export default Launcher;
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Launcher/styled.ts
+
+import { ClassName } from '@/constants';
+import { tagFactory } from '@/hocs';
+import { styled } from '@/styles';
+
+const tag = tagFactory(ClassName.LAUNCHER);
+
+export const Button = styled(tag('button'), {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: '$round',
+  backgroundColor: '$primary',
+  trans: ['background-color', 'box-shadow'],
+
+  height: '$xl',
+  width: '$xl',
+  border: '1px solid $shadow4',
+  boxShadow: '0 1px 6px $shadow6, 0 2px 24px $shadow8',
+
+  '&:focus': {
+    outline: 0,
+  },
+  '&:hover': {
+    cursor: 'pointer',
+    backgroundColor: '$darkPrimary',
+  },
+
+  '& > img': {
+    width: '$sm',
+    height: '$sm',
+  },
+
+  padding: 0,
+  margin: 0,
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWindow/index.tsx
+
+import '../../styles.css';
+
+import React, { useCallback, useContext, useState } from 'react';
+import * as R from 'remeda';
+import { match } from 'ts-pattern';
+
+import { Chat, SystemResponse, UserResponse } from '@/components';
+import ConfirmationDialog from '@/components/ConfirmationDialog';
+import { RuntimeStateAPIContext, RuntimeStateContext } from '@/contexts/RuntimeContext';
+import type { FeedbackName } from '@/contexts/RuntimeContext/useRuntimeAPI';
+import type { UserTurnProps } from '@/types';
+import { SessionStatus, TurnType } from '@/types';
+
+import { ChatWindowContainer, DialogOverlay } from './styled';
+
+export interface ChatWindowProps {
+  className?: string;
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
+  const runtime = useContext(RuntimeStateAPIContext);
+  const state = useContext(RuntimeStateContext);
+  const { assistant, config } = runtime;
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+
+  const closeAndEnd = useCallback((): void => {
+    runtime.setStatus(SessionStatus.ENDED);
+    runtime.close();
+  }, [runtime]);
+
+  const getPreviousUserTurn = useCallback(
+    (turnIndex: number): UserTurnProps | null => {
+      const turn = state.session.turns[turnIndex - 1];
+      return turn?.type === TurnType.USER ? turn : null;
+    },
+    [state.session.turns]
+  );
+
+  const handleActionSelect = (action: string) => {
+    setSelectedAction(action);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (selectedAction) {
+      const tracePayload = {
+        type: 'intent',
+        payload: {
+          intent: {
+            name: selectedAction
+          }
+        }
+      };
+
+      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+        window.voiceflow.chat.interact(tracePayload);
+      } else {
+        console.error('Voiceflow chat is not properly initialized');
+      }
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsDialogOpen(false);
+    setSelectedAction(null);
+  };
+
+  return (
+    <ChatWindowContainer className={className}>
+      <Chat
+        title={assistant.title}
+        description={assistant.description}
+        image={assistant.image}
+        avatar={assistant.avatar}
+        withWatermark={assistant.watermark}
+        startTime={state.session.startTime}
+        hasEnded={runtime.isStatus(SessionStatus.ENDED)}
+        isLoading={runtime.isStatus(SessionStatus.IDLE) && state.session.turns.length === 0 && config.autostart}
+        onStart={runtime.launch}
+        onEnd={closeAndEnd}
+        onSend={runtime.reply}
+        onMinimize={runtime.close}
+        audioInterface={assistant.audioInterface}
+        onActionSelect={handleActionSelect}
+      >
+        {state.session.turns.map((turn, turnIndex) =>
+          match(turn)
+            .with({ type: TurnType.USER }, ({ id, ...props }) => <UserResponse {...R.omit(props, ['type'])} key={id} />)
+            .with({ type: TurnType.SYSTEM }, ({ id, ...props }) => (
+              <SystemResponse
+                key={id}
+                {...R.omit(props, ['type'])}
+                feedback={
+                  assistant.feedback
+                    ? {
+                        onClick: (feedback: FeedbackName) => {
+                          runtime.feedback(feedback, props.messages, getPreviousUserTurn(turnIndex));
+                        },
+                      }
+                    : undefined
+                }
+                avatar={assistant.avatar}
+                isLast={turnIndex === state.session.turns.length - 1}
+              />
+            ))
+            .exhaustive()
+        )}
+        {state.indicator && <SystemResponse.Indicator avatar={assistant.avatar} />}
+      </Chat>
+      <DialogOverlay isOpen={isDialogOpen}>
+        <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onAccept={handleConfirm}
+          onCancel={handleCancel}
+          message={`Do you want to trigger ${selectedAction}?`}
+          selectedAction={selectedAction}
+        />
+      </DialogOverlay>
+    </ChatWindowContainer>
+  );
+};
+
+export default Object.assign(ChatWindow, { Container: ChatWindowContainer });
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWindow/styled.ts
+
+import Chat from '@/components/Chat';
+import { styled } from '@/styles';
+
+export const ChatWindowContainer = styled('div', {
+  height: '100%',
+  position: 'relative',
+
+  [`& ${Chat.Container}`]: {
+    height: '100%',
+  },
+});
+
+export const DialogOverlay = styled('div', {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000,
+
+  variants: {
+    isOpen: {
+      true: {
+        opacity: 1,
+        pointerEvents: 'auto',
+      },
+      false: {
+        opacity: 0,
+        pointerEvents: 'none',
+      },
+    },
+  },
+});

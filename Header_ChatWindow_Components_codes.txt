@@ -1,0 +1,350 @@
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Header/Header.story.tsx
+
+import type { Meta, StoryObj } from '@storybook/react';
+
+import Chat from '@/components/Chat';
+import { VF_ICON } from '@/fixtures';
+
+import Header from '.';
+
+const meta: Meta<typeof Header> = {
+  title: 'Components/Chat/Header',
+  component: Header,
+  args: {
+    title: 'Assistant Name',
+    image: VF_ICON,
+    actions: [],
+  },
+  render: (args) => (
+    <Chat.Container>
+      <Header {...args} />
+    </Chat.Container>
+  ),
+};
+
+export default meta;
+
+type Story = StoryObj<typeof Header>;
+
+export const Base: Story = {};
+
+export const Actionable: Story = {
+  args: {
+    actions: [{ svg: 'minus' }, { svg: 'close' }],
+  },
+};
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Header/index.tsx
+
+import Avatar from '@/components/Avatar';
+import type { IconProps } from '@/components/Icon';
+import Icon from '@/components/Icon';
+
+import { Button, Container, Title } from './styled';
+
+export interface HeaderActionProps {
+  /**
+   * The name of the SVG icon that will be used for the button or a React component.
+   *
+   * @see {@link https://github.com/voiceflow/react-chat/tree/master/packages/react-chat/src/assets/svg the available icons}
+   */
+  svg: IconProps['svg'];
+
+  /**
+   * A callback that is executed when the button is clicked.
+   */
+  onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
+}
+
+export interface HeaderProps {
+  /**
+   * The name of your assistant or title of the conversation.
+   */
+  title: string;
+
+  /**
+   * An image URL that will be rendered as a small {@link Avatar}.
+   */
+  image: string;
+
+  /**
+   * A list of actions that will appear as icon buttons.
+   */
+  actions?: HeaderActionProps[];
+}
+
+const Header: React.FC<HeaderProps> = ({ title, image, actions = [] }) => (
+  <Container>
+    <Avatar avatar={image} />
+    <Title>{title}</Title>
+    {actions.map(({ svg, onClick }, index) => (
+      <Button onClick={onClick} key={index}>
+        <Icon svg={svg} />
+      </Button>
+    ))}
+  </Container>
+);
+
+/**
+ * Header for the chat widget with image, title and controls.
+ *
+ * @see {@link https://voiceflow.github.io/react-chat/?path=/docs/components-chat-header--simple}
+ */
+export default Object.assign(Header, {
+  Container,
+  Title,
+  Button,
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Header/styled.ts
+
+import Avatar from '@/components/Avatar';
+import BaseButton from '@/components/Button';
+import Icon from '@/components/Icon';
+import { ClassName } from '@/constants';
+import { tagFactory } from '@/hocs';
+import { styled } from '@/styles';
+import { textOverflowStyles } from '@/styles/fragments';
+
+const tag = tagFactory(ClassName.HEADER);
+
+export const Title = styled(tag('h1', 'title'), {
+  ...textOverflowStyles,
+  typo: { size: 17, weight: '$2', height: '$2' },
+  color: 'rgba(255,255,255,0.95)',
+});
+
+export const Button = styled(tag(BaseButton.Reset, 'button'), {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: 32,
+  width: 32,
+  marginLeft: 8,
+  borderRadius: 6,
+  background: 'none',
+  trans: ['background-color'],
+
+  '&:hover': {
+    backgroundColor: 'rgba(255,255,255,0.16)',
+
+    [`& ${Icon.Frame}`]: {
+      color: '$white',
+    },
+  },
+
+  [`& ${Icon.Frame}`]: {
+    height: '$xxs',
+    width: '$xxs',
+    color: 'rgba(255,255,255,0.8)',
+    trans: ['color'],
+  },
+});
+
+export const Container = styled(tag('header'), {
+  display: 'flex',
+  flexShrink: 0,
+  alignItems: 'center',
+  height: '$lg',
+  padding: '0 $4 0 $5',
+  backgroundColor: '$primary',
+  boxShadow: '0 1px 2px $shadow16',
+
+  [`& ${Avatar.Container}`]: {
+    height: 32,
+    width: 32,
+  },
+
+  [`& ${Title}`]: {
+    flex: 1,
+    margin: '0 0 0 14px',
+  },
+});
+
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWindow/index.tsx
+
+import '../../styles.css';
+
+import React, { useCallback, useContext, useState } from 'react';
+import * as R from 'remeda';
+import { match } from 'ts-pattern';
+
+import { Chat, SystemResponse, UserResponse } from '@/components';
+import ConfirmationDialog from '@/components/ConfirmationDialog';
+import StatusIndicator from '@/components/StatusIndicator';
+import { RuntimeStateAPIContext, RuntimeStateContext } from '@/contexts/RuntimeContext';
+import type { FeedbackName } from '@/contexts/RuntimeContext/useRuntimeAPI';
+import type { UserTurnProps } from '@/types';
+import { SessionStatus, TurnType } from '@/types';
+
+import { ChatWindowContainer, DialogOverlay, TopBanner } from './styled';
+
+export interface ChatWindowProps {
+  className?: string;
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
+  const runtime = useContext(RuntimeStateAPIContext);
+  const state = useContext(RuntimeStateContext);
+  const { assistant, config } = runtime;
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+
+  const closeAndEnd = useCallback((): void => {
+    runtime.setStatus(SessionStatus.ENDED);
+    runtime.close();
+  }, [runtime]);
+
+  const getPreviousUserTurn = useCallback(
+    (turnIndex: number): UserTurnProps | null => {
+      const turn = state.session.turns[turnIndex - 1];
+      return turn?.type === TurnType.USER ? turn : null;
+    },
+    [state.session.turns]
+  );
+
+  const handleActionSelect = (action: string) => {
+    setSelectedAction(action);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (selectedAction) {
+      const tracePayload = {
+        type: 'intent',
+        payload: {
+          intent: {
+            name: selectedAction
+          }
+        }
+      };
+
+      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+        window.voiceflow.chat.interact(tracePayload);
+      } else {
+        console.error('Voiceflow chat is not properly initialized');
+      }
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsDialogOpen(false);
+    setSelectedAction(null);
+  };
+
+  return (
+    <ChatWindowContainer className={className}>
+      <TopBanner>
+        <StatusIndicator />
+      </TopBanner>
+      <Chat
+        title={assistant.title}
+        description={assistant.description}
+        image={assistant.image}
+        avatar={assistant.avatar}
+        withWatermark={assistant.watermark}
+        startTime={state.session.startTime}
+        hasEnded={runtime.isStatus(SessionStatus.ENDED)}
+        isLoading={runtime.isStatus(SessionStatus.IDLE) && state.session.turns.length === 0 && config.autostart}
+        onStart={runtime.launch}
+        onEnd={closeAndEnd}
+        onSend={runtime.reply}
+        onMinimize={runtime.close}
+        audioInterface={assistant.audioInterface}
+        onActionSelect={handleActionSelect}
+      >
+        {state.session.turns.map((turn, turnIndex) =>
+          match(turn)
+            .with({ type: TurnType.USER }, ({ id, ...props }) => <UserResponse {...R.omit(props, ['type'])} key={id} />)
+            .with({ type: TurnType.SYSTEM }, ({ id, ...props }) => (
+              <SystemResponse
+                key={id}
+                {...R.omit(props, ['type'])}
+                feedback={
+                  assistant.feedback
+                    ? {
+                        onClick: (feedback: FeedbackName) => {
+                          runtime.feedback(feedback, props.messages, getPreviousUserTurn(turnIndex));
+                        },
+                      }
+                    : undefined
+                }
+                avatar={assistant.avatar}
+                isLast={turnIndex === state.session.turns.length - 1}
+              />
+            ))
+            .exhaustive()
+        )}
+        {state.indicator && <SystemResponse.Indicator avatar={assistant.avatar} />}
+      </Chat>
+      <DialogOverlay isOpen={isDialogOpen}>
+        <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onAccept={handleConfirm}
+          onCancel={handleCancel}
+          message={`Do you want to trigger ${selectedAction}?`}
+          selectedAction={selectedAction}
+        />
+      </DialogOverlay>
+    </ChatWindowContainer>
+  );
+};
+
+export default Object.assign(ChatWindow, { Container: ChatWindowContainer });
+
+// File: /Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWindow/styled.ts
+
+import Chat from '@/components/Chat';
+import { styled } from '@/styles';
+
+export const ChatWindowContainer = styled('div', {
+  height: '100%',
+  position: 'relative',
+
+  [`& ${Chat.Container}`]: {
+    height: '100%',
+  },
+});
+
+export const TopBanner = styled('div', {
+  position: 'absolute',
+  top: '12px',
+  right: '12px',
+  zIndex: 2,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+});
+
+export const DialogOverlay = styled('div', {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000,
+
+  variants: {
+    isOpen: {
+      true: {
+        opacity: 1,
+        pointerEvents: 'auto',
+      },
+      false: {
+        opacity: 0,
+        pointerEvents: 'none',
+      },
+    },
+  },
+});

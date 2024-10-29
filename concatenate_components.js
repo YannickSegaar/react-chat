@@ -3,10 +3,10 @@ const path = require('path');
 
 // List of directories to process
 const directories = [
-  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Chat',
   '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/components/Header',
+  '/Users/yannickromainsegaar/react-chat/packages/react-chat/src/views/ChatWindow',
 ];
-const outputFile = path.resolve(__dirname, 'Chat_Header_Components_codes.txt');
+const outputFile = path.resolve(__dirname, 'Header_ChatWindow_Components_codes.txt');
 
 // List of file extensions to include
 const includeExtensions = ['.js', '.jsx', '.ts', '.tsx']; // Include other relevant extensions

@@ -41,6 +41,44 @@ export const Button = styled(tag(BaseButton.Reset, 'button'), {
   },
 });
 
+export const StatusDot = styled('div', {
+  width: '10px', // Slightly smaller dot
+  height: '10px',
+  backgroundColor: '#4caf50',
+  borderRadius: '50%',
+  position: 'absolute',
+  top: '5px', // Position from top
+  right: '27px', // Aligns with the center of the close button (which is 32px wide)
+  
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#4caf50',
+    borderRadius: '50%',
+    animation: 'pulse 2s infinite',
+    opacity: 0.5,
+  },
+
+  '@keyframes pulse': {
+    '0%': { 
+      transform: 'scale(1)',
+      opacity: 0.5 
+    },
+    '50%': { 
+      transform: 'scale(1.5)',
+      opacity: 0 
+    },
+    '100%': { 
+      transform: 'scale(1)',
+      opacity: 0.5 
+    },
+  },
+});
+
 export const Container = styled(tag('header'), {
   display: 'flex',
   flexShrink: 0,
@@ -49,6 +87,7 @@ export const Container = styled(tag('header'), {
   padding: '0 $4 0 $5',
   backgroundColor: '$primary',
   boxShadow: '0 1px 2px $shadow16',
+  position: 'relative',
 
   [`& ${Avatar.Container}`]: {
     height: 32,

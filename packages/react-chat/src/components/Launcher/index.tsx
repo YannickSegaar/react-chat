@@ -1,8 +1,8 @@
 import type { MouseEventHandler } from 'react';
 import React from 'react';
-
+import StatusIndicator from '../StatusIndicator';
 import launch from './launch.svg';
-import { Button } from './styled';
+import { Button, LauncherContainer, LauncherStatus } from './styled';
 
 export interface LauncherProps {
   /**
@@ -19,9 +19,14 @@ export interface LauncherProps {
 
 const Launcher: React.FC<LauncherProps> = ({ image, onClick }) => {
   return (
-    <Button onClick={onClick}>
-      <img src={image || launch} alt="launch" />
-    </Button>
+    <LauncherContainer>
+      <LauncherStatus>
+        <StatusIndicator />
+      </LauncherStatus>
+      <Button onClick={onClick}>
+        <img src={image || launch} alt="launch" />
+      </Button>
+    </LauncherContainer>
   );
 };
 
